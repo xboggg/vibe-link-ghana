@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { ParallaxBackground } from "@/components/ParallaxBackground";
+import { AnimatedHeading, AnimatedText } from "@/components/AnimatedHeading";
 
 const eventTypes = [
   { icon: "💒", title: "Weddings", slug: "wedding" },
@@ -17,26 +18,42 @@ export function EventTypesSection() {
   return (
     <section className="py-20 lg:py-28 bg-muted/50 relative overflow-hidden">
       <ParallaxBackground variant="waves" />
-      <div className="container mx-auto px-4 lg:px-8">
+      <div className="container mx-auto px-4 lg:px-8 relative">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-secondary/20 text-secondary-foreground text-sm font-medium mb-4">
+        <div className="text-center mb-12">
+          <AnimatedHeading
+            as="span"
+            variant="fade-up"
+            className="inline-block px-4 py-1.5 rounded-full bg-secondary/20 text-secondary-foreground text-sm font-medium mb-4"
+          >
             Our Expertise
-          </span>
+          </AnimatedHeading>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            For Every <span className="text-gradient-gold">Ghanaian</span> Celebration
+            <AnimatedText text="For Every" className="justify-center" />
+            {" "}
+            <AnimatedHeading
+              as="span"
+              variant="blur"
+              delay={0.3}
+              className="text-gradient-gold inline-block"
+            >
+              Ghanaian
+            </AnimatedHeading>
+            {" "}
+            <AnimatedHeading as="span" variant="wave" delay={0.5} className="inline-block">
+              Celebration
+            </AnimatedHeading>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <AnimatedHeading
+            as="p"
+            variant="fade-up"
+            delay={0.4}
+            className="text-muted-foreground text-lg max-w-2xl mx-auto"
+          >
             From joyful weddings to solemn funerals, we create beautiful digital
             experiences that honor your traditions.
-          </p>
-        </motion.div>
+          </AnimatedHeading>
+        </div>
 
         {/* Event Types Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">

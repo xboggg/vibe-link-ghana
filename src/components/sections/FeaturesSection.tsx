@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link, Share2, RefreshCw, Users, Wallet, Smartphone } from "lucide-react";
 import { ParallaxBackground } from "@/components/ParallaxBackground";
+import { AnimatedHeading, AnimatedText } from "@/components/AnimatedHeading";
 
 const features = [
   {
@@ -58,26 +59,39 @@ export function FeaturesSection() {
   return (
     <section className="py-20 lg:py-28 bg-background relative overflow-hidden">
       <ParallaxBackground variant="geometric" />
-      <div className="container mx-auto px-4 lg:px-8">
+      <div className="container mx-auto px-4 lg:px-8 relative">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+        <div className="text-center mb-16">
+          <AnimatedHeading
+            as="span"
+            variant="fade-up"
+            className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4"
+          >
             Why Choose Us
-          </span>
+          </AnimatedHeading>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Why Choose <span className="text-primary">VibeLink</span>?
+            <AnimatedText text="Why Choose" className="justify-center" />
+            {" "}
+            <AnimatedHeading
+              as="span"
+              variant="blur"
+              delay={0.4}
+              className="text-primary inline-block"
+            >
+              VibeLink
+            </AnimatedHeading>
+            <AnimatedHeading as="span" variant="fade-up" delay={0.5} className="inline-block">?</AnimatedHeading>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <AnimatedHeading
+            as="p"
+            variant="fade-up"
+            delay={0.3}
+            className="text-muted-foreground text-lg max-w-2xl mx-auto"
+          >
             We've reimagined event invitations for the digital age, with features
             designed specifically for Ghanaian celebrations.
-          </p>
-        </motion.div>
+          </AnimatedHeading>
+        </div>
 
         {/* Features Grid */}
         <motion.div

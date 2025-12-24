@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { useRef } from "react";
+import { AnimatedHeading, AnimatedText } from "@/components/AnimatedHeading";
 
 export function CTASection() {
   const ref = useRef<HTMLDivElement>(null);
@@ -32,21 +33,29 @@ export function CTASection() {
       />
 
       <div className="container mx-auto px-4 lg:px-8 relative">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-3xl mx-auto text-center"
-        >
+        <div className="max-w-3xl mx-auto text-center">
           {/* Heading */}
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
-            Ready to Create Something Beautiful?
+            <AnimatedText text="Ready to Create Something" className="justify-center text-white" />
+            {" "}
+            <AnimatedHeading
+              as="span"
+              variant="blur"
+              delay={0.4}
+              className="text-secondary inline-block"
+            >
+              Beautiful?
+            </AnimatedHeading>
           </h2>
 
-          <p className="text-white/80 text-lg mb-8 max-w-2xl mx-auto">
+          <AnimatedHeading
+            as="p"
+            variant="fade-up"
+            delay={0.3}
+            className="text-white/80 text-lg mb-8 max-w-2xl mx-auto"
+          >
             Let us help you celebrate your next milestone with a stunning digital invitation.
-          </p>
+          </AnimatedHeading>
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -71,7 +80,7 @@ export function CTASection() {
               </Link>
             </Button>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { ParallaxBackground } from "@/components/ParallaxBackground";
+import { AnimatedHeading, AnimatedText } from "@/components/AnimatedHeading";
 
 const portfolioItems = [
   {
@@ -43,26 +44,42 @@ export function PortfolioPreviewSection() {
   return (
     <section className="py-20 lg:py-28 bg-background relative overflow-hidden">
       <ParallaxBackground variant="gradient" />
-      <div className="container mx-auto px-4 lg:px-8">
+      <div className="container mx-auto px-4 lg:px-8 relative">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+        <div className="text-center mb-12">
+          <AnimatedHeading
+            as="span"
+            variant="fade-up"
+            className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4"
+          >
             Our Work
-          </span>
+          </AnimatedHeading>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Our <span className="text-primary">Recent</span> Work
+            <AnimatedText text="Our" className="justify-center" />
+            {" "}
+            <AnimatedHeading
+              as="span"
+              variant="blur"
+              delay={0.2}
+              className="text-primary inline-block"
+            >
+              Recent
+            </AnimatedHeading>
+            {" "}
+            <AnimatedHeading as="span" variant="wave" delay={0.4} className="inline-block">
+              Work
+            </AnimatedHeading>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <AnimatedHeading
+            as="p"
+            variant="fade-up"
+            delay={0.3}
+            className="text-muted-foreground text-lg max-w-2xl mx-auto"
+          >
             See how we've helped Ghanaian families create unforgettable digital
             experiences.
-          </p>
-        </motion.div>
+          </AnimatedHeading>
+        </div>
 
         {/* Portfolio Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

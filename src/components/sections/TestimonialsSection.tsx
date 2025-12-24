@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 import { ParallaxBackground } from "@/components/ParallaxBackground";
+import { AnimatedHeading, AnimatedText } from "@/components/AnimatedHeading";
 
 const testimonials = [
   {
@@ -30,26 +31,42 @@ export function TestimonialsSection() {
   return (
     <section className="py-20 lg:py-28 bg-muted/50 relative overflow-hidden">
       <ParallaxBackground variant="dots" />
-      <div className="container mx-auto px-4 lg:px-8">
+      <div className="container mx-auto px-4 lg:px-8 relative">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-secondary/20 text-secondary-foreground text-sm font-medium mb-4">
+        <div className="text-center mb-12">
+          <AnimatedHeading
+            as="span"
+            variant="fade-up"
+            className="inline-block px-4 py-1.5 rounded-full bg-secondary/20 text-secondary-foreground text-sm font-medium mb-4"
+          >
             Testimonials
-          </span>
+          </AnimatedHeading>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            What Our <span className="text-gradient-gold">Clients</span> Say
+            <AnimatedText text="What Our" className="justify-center" />
+            {" "}
+            <AnimatedHeading
+              as="span"
+              variant="blur"
+              delay={0.3}
+              className="text-gradient-gold inline-block"
+            >
+              Clients
+            </AnimatedHeading>
+            {" "}
+            <AnimatedHeading as="span" variant="wave" delay={0.5} className="inline-block">
+              Say
+            </AnimatedHeading>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <AnimatedHeading
+            as="p"
+            variant="fade-up"
+            delay={0.4}
+            className="text-muted-foreground text-lg max-w-2xl mx-auto"
+          >
             Real stories from real Ghanaian families who trusted us with their
             special moments.
-          </p>
-        </motion.div>
+          </AnimatedHeading>
+        </div>
 
         {/* Testimonials Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">

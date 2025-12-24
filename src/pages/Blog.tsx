@@ -248,10 +248,10 @@ const Blog = () => {
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/50 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <span className="inline-block px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-medium mb-3">
-                      {post.category}
-                    </span>
+                  <span className="absolute top-4 left-4 inline-block px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-medium">
+                    {post.category}
+                  </span>
+                  <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
                     <h3 className="text-xl md:text-2xl font-bold text-primary-foreground mb-2 group-hover:text-secondary transition-colors">
                       {post.title}
                     </h3>

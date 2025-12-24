@@ -12,6 +12,7 @@ const navItems = [
   { name: "Blog", href: "/blog" },
   { name: "Pricing", href: "/pricing" },
   { name: "About", href: "/about" },
+  { name: "Contact Us", href: "/contact" },
 ];
 
 const TikTokIcon = () => (

@@ -1,13 +1,8 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
-import { Heart, Globe, Sparkles, Shield, Users, Clock, Star, MessageCircle as MessageCircleIcon, Instagram, Facebook, Twitter, Send, Mail } from "lucide-react";
+import { Heart, Globe, Sparkles, Shield, Users, MessageCircle as MessageCircleIcon, Instagram, Facebook, Twitter, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -73,109 +68,6 @@ const whyChooseFeatures = [
 ];
 
 const About = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    eventType: "",
-    message: "",
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const { toast } = useToast();
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!formData.name.trim() || formData.name.trim().length < 2) {
-      newErrors.name = "Please enter your name (at least 2 characters)";
-    }
-    if (formData.name.length > 100) {
-      newErrors.name = "Name must be less than 100 characters";
-    }
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-    if (!formData.message.trim() || formData.message.trim().length < 10) {
-      newErrors.message = "Please enter a message (at least 10 characters)";
-    }
-    if (formData.message.length > 1000) {
-      newErrors.message = "Message must be less than 1000 characters";
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleWhatsAppSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      toast({
-        title: "Please fix the errors",
-        description: "Check the form fields and try again.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Build WhatsApp message
-    const message = `Hi VibeLink! 👋
-
-*Name:* ${formData.name.trim()}
-${formData.email ? `*Email:* ${formData.email.trim()}` : ""}
-${formData.eventType ? `*Event Type:* ${formData.eventType.trim()}` : ""}
-
-*Message:*
-${formData.message.trim()}`;
-
-    const whatsappUrl = `https://wa.me/233245817973?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, "_blank");
-    
-    toast({
-      title: "Opening WhatsApp",
-      description: "Complete your message in WhatsApp to reach us!",
-    });
-
-    // Reset form
-    setFormData({ name: "", email: "", eventType: "", message: "" });
-    setErrors({});
-  };
-
-  const handleEmailSubmit = () => {
-    if (!validateForm()) {
-      toast({
-        title: "Please fix the errors",
-        description: "Check the form fields and try again.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const subject = formData.eventType 
-      ? `Inquiry about ${formData.eventType}` 
-      : "Inquiry from VibeLink Website";
-    
-    const body = `Hi VibeLink Team,
-
-Name: ${formData.name.trim()}
-${formData.email ? `Email: ${formData.email.trim()}` : ""}
-${formData.eventType ? `Event Type: ${formData.eventType.trim()}` : ""}
-
-Message:
-${formData.message.trim()}`;
-
-    const mailtoUrl = `mailto:hello@vibelinkgh.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoUrl;
-    
-    toast({
-      title: "Opening Email",
-      description: "Complete your message in your email app!",
-    });
-
-    // Reset form
-    setFormData({ name: "", email: "", eventType: "", message: "" });
-    setErrors({});
-  };
-
   return (
     <Layout>
       {/* Hero - Purple Gradient */}
@@ -348,21 +240,29 @@ ${formData.message.trim()}`;
                 name: "Kwame Asante",
                 role: "Founder & CEO",
                 image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
+                linkedin: "https://linkedin.com/in/kwameasante",
+                twitter: "https://twitter.com/kwameasante",
               },
               {
                 name: "Ama Mensah",
                 role: "Creative Director",
                 image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=300&h=300&fit=crop&crop=face",
+                linkedin: "https://linkedin.com/in/amimensah",
+                twitter: "https://twitter.com/amimensah",
               },
               {
                 name: "Kofi Darko",
                 role: "Lead Designer",
                 image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop&crop=face",
+                linkedin: "https://linkedin.com/in/kofidarko",
+                twitter: "https://twitter.com/kofidarko",
               },
               {
                 name: "Efua Boateng",
                 role: "Customer Success",
                 image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop&crop=face",
+                linkedin: "https://linkedin.com/in/efuaboateng",
+                twitter: "https://twitter.com/efuaboateng",
               },
             ].map((member, index) => (
               <motion.div
@@ -379,7 +279,28 @@ ${formData.message.trim()}`;
                     alt={member.name}
                     className="w-full aspect-square object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+                    <div className="flex gap-3">
+                      <a
+                        href={member.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
+                        aria-label={`${member.name} LinkedIn`}
+                      >
+                        <Linkedin className="h-4 w-4 text-white" />
+                      </a>
+                      <a
+                        href={member.twitter}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors"
+                        aria-label={`${member.name} Twitter`}
+                      >
+                        <Twitter className="h-4 w-4 text-white" />
+                      </a>
+                    </div>
+                  </div>
                 </div>
                 <h3 className="text-lg font-bold text-foreground mb-1">
                   {member.name}
@@ -513,140 +434,6 @@ ${formData.message.trim()}`;
         </div>
       </section>
 
-      {/* Contact Form Section */}
-      <section className="py-20 bg-muted/50">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="max-w-2xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="text-center mb-10"
-            >
-              <div className="w-16 h-16 mx-auto rounded-full bg-secondary/20 flex items-center justify-center mb-6">
-                <MessageCircleIcon className="h-8 w-8 text-secondary" />
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Get In Touch
-              </h2>
-              <p className="text-muted-foreground text-lg">
-                Have a question or want to discuss your event? Send us a message
-                and we'll get back to you.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="p-8 rounded-2xl bg-card border border-border space-y-6"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-foreground">
-                    Your Name <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="name"
-                    placeholder="Kwame Asante"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    className={errors.name ? "border-destructive" : ""}
-                    maxLength={100}
-                  />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">{errors.name}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-foreground">
-                    Email (optional)
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="kwame@example.com"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    className={errors.email ? "border-destructive" : ""}
-                    maxLength={255}
-                  />
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="eventType" className="text-foreground">
-                  Event Type (optional)
-                </Label>
-                <Input
-                  id="eventType"
-                  placeholder="e.g. Wedding, Funeral, Birthday"
-                  value={formData.eventType}
-                  onChange={(e) =>
-                    setFormData({ ...formData, eventType: e.target.value })
-                  }
-                  maxLength={100}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="message" className="text-foreground">
-                  Your Message <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  id="message"
-                  placeholder="Tell us about your event or ask any questions..."
-                  value={formData.message}
-                  onChange={(e) =>
-                    setFormData({ ...formData, message: e.target.value })
-                  }
-                  className={`min-h-[120px] ${errors.message ? "border-destructive" : ""}`}
-                  maxLength={1000}
-                />
-                {errors.message && (
-                  <p className="text-sm text-destructive">{errors.message}</p>
-                )}
-                <p className="text-xs text-muted-foreground text-right">
-                  {formData.message.length}/1000
-                </p>
-              </div>
-
-              {/* Dual Send Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Button 
-                  type="button" 
-                  onClick={handleWhatsAppSubmit}
-                  size="lg" 
-                  className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground"
-                >
-                  <Send className="h-5 w-5 mr-2" />
-                  Send via WhatsApp
-                </Button>
-                <Button 
-                  type="button" 
-                  onClick={handleEmailSubmit}
-                  variant="outline"
-                  size="lg" 
-                  className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                >
-                  <Mail className="h-5 w-5 mr-2" />
-                  Send via Email
-                </Button>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
     </Layout>
   );
 };

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { FileText, MessageCircle, Sparkles, ArrowRight } from "lucide-react";
 import { ParallaxBackground } from "@/components/ParallaxBackground";
+import { AnimatedHeading, AnimatedText } from "@/components/AnimatedHeading";
 
 const steps = [
   {
@@ -29,26 +30,38 @@ export function HowItWorksPreviewSection() {
   return (
     <section className="py-20 lg:py-28 bg-background relative overflow-hidden">
       <ParallaxBackground variant="geometric" />
-      <div className="container mx-auto px-4 lg:px-8">
+      <div className="container mx-auto px-4 lg:px-8 relative">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+        <div className="text-center mb-16">
+          <AnimatedHeading
+            as="span"
+            variant="fade-up"
+            className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4"
+          >
             Simple Process
-          </span>
+          </AnimatedHeading>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            Simple as <span className="text-primary">1-2-3</span>
+            <AnimatedText text="Simple as" className="justify-center" />
+            {" "}
+            <AnimatedHeading
+              as="span"
+              variant="blur"
+              delay={0.3}
+              className="text-primary inline-block"
+            >
+              1-2-3
+            </AnimatedHeading>
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <AnimatedHeading
+            as="p"
+            variant="fade-up"
+            delay={0.4}
+            className="text-muted-foreground text-lg max-w-2xl mx-auto"
+          >
             From inquiry to celebration, we make creating your digital invitation
             effortless.
-          </p>
-        </motion.div>
+          </AnimatedHeading>
+        </div>
 
         {/* Steps */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mb-12">

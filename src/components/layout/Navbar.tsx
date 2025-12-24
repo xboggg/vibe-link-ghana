@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles, Instagram, Facebook, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,19 @@ const navItems = [
   { name: "How It Works", href: "/how-it-works" },
   { name: "Pricing", href: "/pricing" },
   { name: "About", href: "/about" },
+];
+
+const TikTokIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+  </svg>
+);
+
+const socialLinks = [
+  { name: "Instagram", icon: Instagram, href: "https://instagram.com/vibelink_ghana" },
+  { name: "Facebook", icon: Facebook, href: "https://facebook.com/VibeLink Ghana" },
+  { name: "Twitter", icon: Twitter, href: "https://twitter.com/VibeLink_GH" },
+  { name: "TikTok", icon: TikTokIcon, href: "https://tiktok.com/@vibelink.ghana" },
 ];
 
 export function Navbar() {
@@ -74,6 +87,22 @@ export function Navbar() {
             ))}
           </div>
 
+          {/* Social Links */}
+          <div className="hidden lg:flex items-center gap-2 mr-4">
+            {socialLinks.map((social) => (
+              <a
+                key={social.name}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-primary-foreground/70 hover:text-secondary transition-colors"
+                aria-label={social.name}
+              >
+                <social.icon className="h-4 w-4" />
+              </a>
+            ))}
+          </div>
+
           {/* CTA Button */}
           <div className="hidden lg:block">
             <Button asChild variant="nav" size="default">
@@ -122,10 +151,30 @@ export function Navbar() {
                   </Link>
                 </motion.div>
               ))}
+              {/* Mobile Social Links */}
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: navItems.length * 0.05 }}
+                className="flex items-center justify-center gap-4 pt-4"
+              >
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.name}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 text-primary-foreground/70 hover:text-secondary transition-colors"
+                    aria-label={social.name}
+                  >
+                    <social.icon className="h-5 w-5" />
+                  </a>
+                ))}
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: (navItems.length + 1) * 0.05 }}
                 className="pt-4"
               >
                 <Button asChild variant="gold" size="lg" className="w-full">

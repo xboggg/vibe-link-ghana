@@ -76,7 +76,7 @@ export function Navbar() {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "px-4 py-2 text-sm font-medium transition-colors rounded-lg",
+                  "px-3 py-2 text-sm font-medium transition-colors rounded-lg",
                   location.pathname === item.href
                     ? "text-secondary"
                     : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
@@ -87,24 +87,25 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* Social Links */}
-          <div className="hidden lg:flex items-center gap-2 mr-4">
-            {socialLinks.map((social) => (
-              <a
-                key={social.name}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 text-primary-foreground/70 hover:text-secondary transition-colors"
-                aria-label={social.name}
-              >
-                <social.icon className="h-4 w-4" />
-              </a>
-            ))}
-          </div>
+          {/* Right Side: Socials + CTA */}
+          <div className="hidden lg:flex items-center gap-3">
+            {/* Social Links */}
+            <div className="flex items-center gap-1 border-r border-primary-foreground/20 pr-4">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-1.5 text-primary-foreground/60 hover:text-secondary transition-colors"
+                  aria-label={social.name}
+                >
+                  <social.icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
 
-          {/* CTA Button */}
-          <div className="hidden lg:block">
+            {/* CTA Button */}
             <Button asChild variant="nav" size="default">
               <Link to="/get-started">Get Started</Link>
             </Button>

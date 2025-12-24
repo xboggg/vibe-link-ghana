@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
+import { ParallaxBackground } from "@/components/ParallaxBackground";
 
 const testimonials = [
   {
@@ -27,7 +28,8 @@ const testimonials = [
 
 export function TestimonialsSection() {
   return (
-    <section className="py-20 lg:py-28 bg-muted/50">
+    <section className="py-20 lg:py-28 bg-muted/50 relative overflow-hidden">
+      <ParallaxBackground variant="dots" />
       <div className="container mx-auto px-4 lg:px-8">
         {/* Header */}
         <motion.div

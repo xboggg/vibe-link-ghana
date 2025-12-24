@@ -1,15 +1,35 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageCircle } from "lucide-react";
+import { useRef } from "react";
 
 export function CTASection() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+  
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -60]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 40]);
+
   return (
-    <section className="py-20 lg:py-28 bg-[#7C3AED] relative overflow-hidden">
-      {/* Background Effects */}
+    <section ref={ref} className="py-20 lg:py-28 bg-[#7C3AED] relative overflow-hidden">
+      {/* Background Effects with Parallax */}
       <div className="absolute inset-0 bg-pattern-dots opacity-10" />
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+      <motion.div style={{ y: y1 }} className="absolute top-0 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+      <motion.div style={{ y: y2 }} className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+      
+      {/* Parallax decorative elements */}
+      <motion.div 
+        style={{ y: y1 }} 
+        className="absolute top-20 right-[10%] w-20 h-20 border border-white/10 rounded-lg rotate-12"
+      />
+      <motion.div 
+        style={{ y: y2 }} 
+        className="absolute bottom-20 left-[8%] w-16 h-16 border border-white/10 rounded-full"
+      />
 
       <div className="container mx-auto px-4 lg:px-8 relative">
         <motion.div

@@ -3,7 +3,13 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { CTASection } from "@/components/sections/CTASection";
-import { Check, X, Star, MessageCircle } from "lucide-react";
+import { Check, X, Star, MessageCircle, HelpCircle } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const packages = [
   {
@@ -84,16 +90,36 @@ const packages = [
 
 const faqs = [
   {
+    question: "How long does it take to create my invitation?",
+    answer: "Most invitations are ready within 24-48 hours after we receive all your details and photos. For urgent requests, we offer rush delivery for an additional fee.",
+  },
+  {
     question: "Can I upgrade my package later?",
-    answer: "Yes! You can upgrade anytime before your invitation goes live. We'll adjust the pricing accordingly.",
+    answer: "Yes! You can upgrade anytime before your invitation goes live. We'll adjust the pricing accordingly and add the new features to your existing design.",
   },
   {
     question: "What payment methods do you accept?",
-    answer: "We accept Mobile Money (MTN, Vodafone, AirtelTigo), bank transfer, and cash payments in Accra.",
+    answer: "We accept Mobile Money (MTN, Vodafone, AirtelTigo), bank transfer, and cash payments in Accra. Payment is required upfront before we begin designing.",
   },
   {
     question: "Is the MoMo collection fee separate?",
-    answer: "Yes, we charge a 2.5% processing fee on funds collected through MoMo. This covers payment processing and dashboard access.",
+    answer: "Yes, we charge a 2.5% processing fee on funds collected through MoMo. This covers payment processing, real-time dashboard access, and support. There are no hidden charges.",
+  },
+  {
+    question: "How do guests access my invitation?",
+    answer: "You get a unique link (like vibelink.gh/your-event) that you can share via WhatsApp, SMS, email, or social media. Guests simply click the link – no app download needed!",
+  },
+  {
+    question: "Can I make changes after my invitation is live?",
+    answer: "Absolutely! Depending on your package, you get 1-3 revision rounds. For Prestige and Royal packages, revisions are unlimited. Changes are usually reflected within a few hours.",
+  },
+  {
+    question: "What happens after my event ends?",
+    answer: "Your invitation stays live based on your package duration (30 days to lifetime). Many families keep funerals and memorial pages active permanently as digital tributes.",
+  },
+  {
+    question: "Do you offer refunds?",
+    answer: "We offer a full refund if we haven't started working on your design. Once work begins, we can offer partial refunds depending on how far along the project is. Contact us to discuss.",
   },
 ];
 
@@ -239,7 +265,7 @@ const Pricing = () => {
               </Button>
               <Button asChild variant="outline" size="lg">
                 <a
-                  href="https://wa.me/233XXXXXXXXX"
+                  href="https://wa.me/233245817973"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -248,6 +274,76 @@ const Pricing = () => {
                 </a>
               </Button>
             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-muted/50">
+        <div className="container mx-auto px-4 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-6">
+              <HelpCircle className="h-8 w-8 text-primary" />
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Got questions? We've got answers. If you don't see what you're looking for, feel free to WhatsApp us!
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="max-w-3xl mx-auto"
+          >
+            <Accordion type="single" collapsible className="space-y-4">
+              {faqs.map((faq, index) => (
+                <AccordionItem
+                  key={index}
+                  value={`item-${index}`}
+                  className="bg-card border border-border rounded-xl px-6 data-[state=open]:shadow-md transition-shadow"
+                >
+                  <AccordionTrigger className="text-left text-foreground font-medium hover:no-underline py-5">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-center mt-10"
+          >
+            <p className="text-muted-foreground mb-4">
+              Still have questions?
+            </p>
+            <Button asChild variant="outline" size="lg">
+              <a
+                href="https://wa.me/233245817973"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Chat with Us
+              </a>
+            </Button>
           </motion.div>
         </div>
       </section>

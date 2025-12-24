@@ -230,35 +230,35 @@ const Blog = () => {
           <h2 className="text-2xl font-bold text-foreground mb-8">
             Featured Articles
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {featuredPosts.map((post, index) => (
               <motion.article
                 key={post.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group relative rounded-2xl overflow-hidden"
+                className="group relative rounded-xl md:rounded-2xl overflow-hidden"
               >
                 <Link to={`/blog/${post.slug}`}>
-                  <div className="aspect-[16/9] overflow-hidden">
+                  <div className="aspect-[4/3] md:aspect-[16/9] overflow-hidden">
                     <img
                       src={post.image}
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/50 to-transparent" />
-                  <span className="absolute top-4 left-4 inline-block px-3 py-1 rounded-full bg-secondary text-secondary-foreground text-xs font-medium">
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/60 to-transparent" />
+                  <span className="absolute top-3 left-3 md:top-4 md:left-4 inline-block px-2.5 py-1 rounded-full bg-secondary text-secondary-foreground text-[10px] md:text-xs font-medium">
                     {post.category}
                   </span>
-                  <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
-                    <h3 className="text-xl md:text-2xl font-bold text-primary-foreground mb-2 group-hover:text-secondary transition-colors">
+                  <div className="absolute bottom-0 left-0 right-0 p-3 md:p-6">
+                    <h3 className="text-base md:text-xl lg:text-2xl font-bold text-primary-foreground mb-1 md:mb-2 group-hover:text-secondary transition-colors line-clamp-2">
                       {post.title}
                     </h3>
-                    <p className="text-primary-foreground/70 text-sm line-clamp-2 mb-3">
+                    <p className="text-primary-foreground/70 text-xs md:text-sm line-clamp-2 mb-2 md:mb-3 hidden sm:block">
                       {post.excerpt}
                     </p>
-                    <div className="flex items-center gap-4 text-primary-foreground/60 text-sm">
+                    <div className="flex items-center gap-3 md:gap-4 text-primary-foreground/60 text-[10px] md:text-sm">
                       <span>{post.date}</span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
@@ -348,14 +348,14 @@ const Blog = () => {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {paginatedPosts.map((post, index) => (
                   <motion.article
                     key={post.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.05 }}
-                    className="group rounded-2xl bg-card border border-border overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all duration-300"
+                    className="group rounded-xl md:rounded-2xl bg-card border border-border overflow-hidden hover:border-primary/30 hover:shadow-lg transition-all duration-300"
                   >
                     <Link to={`/blog/${post.slug}`}>
                       <div className="aspect-[16/10] overflow-hidden">
@@ -365,29 +365,29 @@ const Blog = () => {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       </div>
-                      <div className="p-5">
-                        <div className="flex items-center gap-3 mb-3">
-                          <span className="px-2 py-1 rounded bg-muted text-muted-foreground text-xs font-medium">
+                      <div className="p-4 md:p-5">
+                        <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                          <span className="px-2 py-0.5 md:py-1 rounded bg-muted text-muted-foreground text-[10px] md:text-xs font-medium">
                             {post.category}
                           </span>
-                          <span className="flex items-center gap-1 text-muted-foreground text-xs">
+                          <span className="flex items-center gap-1 text-muted-foreground text-[10px] md:text-xs">
                             <Clock className="h-3 w-3" />
                             {post.readTime}
                           </span>
                         </div>
-                        <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                        <h3 className="text-base md:text-lg font-bold text-foreground mb-1.5 md:mb-2 group-hover:text-primary transition-colors line-clamp-2">
                           {post.title}
                         </h3>
-                        <p className="text-muted-foreground text-sm line-clamp-2 mb-4">
+                        <p className="text-muted-foreground text-xs md:text-sm line-clamp-2 mb-3 md:mb-4">
                           {post.excerpt}
                         </p>
                         <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground text-xs">
+                          <span className="text-muted-foreground text-[10px] md:text-xs">
                             {post.date}
                           </span>
-                          <span className="text-primary text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+                          <span className="text-primary text-xs md:text-sm font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
                             Read more
-                            <ArrowRight className="h-4 w-4" />
+                            <ArrowRight className="h-3 w-3 md:h-4 md:w-4" />
                           </span>
                         </div>
                       </div>

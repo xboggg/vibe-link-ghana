@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { FileText, MessageCircle, Sparkles, ArrowRight } from "lucide-react";
+import { ParallaxBackground } from "@/components/ParallaxBackground";
 
 const steps = [
   {
@@ -26,7 +27,8 @@ const steps = [
 
 export function HowItWorksPreviewSection() {
   return (
-    <section className="py-20 lg:py-28 bg-background">
+    <section className="py-20 lg:py-28 bg-background relative overflow-hidden">
+      <ParallaxBackground variant="geometric" />
       <div className="container mx-auto px-4 lg:px-8">
         {/* Header */}
         <motion.div

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Link, Share2, RefreshCw, Users, Wallet, Smartphone } from "lucide-react";
+import { ParallaxBackground } from "@/components/ParallaxBackground";
 
 const features = [
   {
@@ -55,7 +56,8 @@ const itemVariants = {
 
 export function FeaturesSection() {
   return (
-    <section className="py-20 lg:py-28 bg-background">
+    <section className="py-20 lg:py-28 bg-background relative overflow-hidden">
+      <ParallaxBackground variant="geometric" />
       <div className="container mx-auto px-4 lg:px-8">
         {/* Header */}
         <motion.div

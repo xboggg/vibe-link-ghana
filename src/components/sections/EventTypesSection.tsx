@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { ParallaxBackground } from "@/components/ParallaxBackground";
 
 const eventTypes = [
   { icon: "💒", title: "Weddings", slug: "wedding" },
@@ -14,7 +15,8 @@ const eventTypes = [
 
 export function EventTypesSection() {
   return (
-    <section className="py-20 lg:py-28 bg-muted/50">
+    <section className="py-20 lg:py-28 bg-muted/50 relative overflow-hidden">
+      <ParallaxBackground variant="waves" />
       <div className="container mx-auto px-4 lg:px-8">
         {/* Header */}
         <motion.div

@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ExternalLink } from "lucide-react";
+import { ParallaxBackground } from "@/components/ParallaxBackground";
 
 const portfolioItems = [
   {
@@ -40,7 +41,8 @@ const portfolioItems = [
 
 export function PortfolioPreviewSection() {
   return (
-    <section className="py-20 lg:py-28 bg-background">
+    <section className="py-20 lg:py-28 bg-background relative overflow-hidden">
+      <ParallaxBackground variant="gradient" />
       <div className="container mx-auto px-4 lg:px-8">
         {/* Header */}
         <motion.div

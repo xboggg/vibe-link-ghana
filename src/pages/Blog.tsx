@@ -3,19 +3,11 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { CTASection } from "@/components/sections/CTASection";
-import { Clock, ArrowRight, BookOpen, Search, X } from "lucide-react";
+import { Clock, ArrowRight, BookOpen, Search, X, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationEllipsis,
-} from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
 
-const POSTS_PER_PAGE = 6;
+const POSTS_PER_LOAD = 6;
 
 const categories = ["All", "Event Planning", "Traditions", "Tips & Guides", "Inspiration"];
 
@@ -148,55 +140,23 @@ const Blog = () => {
     return posts;
   }, [searchQuery, activeCategory]);
 
-  // Reset to page 1 when filters change
+  const [visibleCount, setVisibleCount] = useState(POSTS_PER_LOAD);
+
+  // Reset visible count when filters change
   useMemo(() => {
-    setCurrentPage(1);
+    setVisibleCount(POSTS_PER_LOAD);
   }, [searchQuery, activeCategory]);
 
-  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
-  
-  const paginatedPosts = useMemo(() => {
-    const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
-    return filteredPosts.slice(startIndex, startIndex + POSTS_PER_PAGE);
-  }, [filteredPosts, currentPage]);
+  const visiblePosts = useMemo(() => {
+    return filteredPosts.slice(0, visibleCount);
+  }, [filteredPosts, visibleCount]);
 
   const featuredPosts = blogPosts.filter((post) => post.featured);
+  const hasMorePosts = visibleCount < filteredPosts.length;
+  const remainingPosts = filteredPosts.length - visibleCount;
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // Scroll to the articles section
-    document.getElementById("articles-section")?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const getPageNumbers = () => {
-    const pages: (number | "ellipsis")[] = [];
-    
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      pages.push(1);
-      
-      if (currentPage > 3) {
-        pages.push("ellipsis");
-      }
-      
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
-      
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
-      
-      if (currentPage < totalPages - 2) {
-        pages.push("ellipsis");
-      }
-      
-      pages.push(totalPages);
-    }
-    
-    return pages;
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + POSTS_PER_LOAD);
   };
 
   return (
@@ -349,7 +309,7 @@ const Blog = () => {
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {paginatedPosts.map((post, index) => (
+                {visiblePosts.map((post, index) => (
                   <motion.article
                     key={post.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -396,43 +356,23 @@ const Blog = () => {
                 ))}
               </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="mt-12">
-                  <Pagination>
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious
-                          onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
-                      </PaginationItem>
-                      
-                      {getPageNumbers().map((page, index) => (
-                        <PaginationItem key={index}>
-                          {page === "ellipsis" ? (
-                            <PaginationEllipsis />
-                          ) : (
-                            <PaginationLink
-                              onClick={() => handlePageChange(page)}
-                              isActive={currentPage === page}
-                              className="cursor-pointer"
-                            >
-                              {page}
-                            </PaginationLink>
-                          )}
-                        </PaginationItem>
-                      ))}
-                      
-                      <PaginationItem>
-                        <PaginationNext
-                          onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
+              {/* Load More Button */}
+              {hasMorePosts && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-10 text-center"
+                >
+                  <Button
+                    onClick={handleLoadMore}
+                    variant="outline"
+                    size="lg"
+                    className="px-8 gap-2"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                    Load More ({remainingPosts} remaining)
+                  </Button>
+                </motion.div>
               )}
             </>
           )}

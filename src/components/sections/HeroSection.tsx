@@ -114,6 +114,86 @@ export function HeroSection() {
         </motion.div>
       </AnimatePresence>
 
+      {/* Decorative Diagonal Lines */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Diagonal lines pattern */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 1 }}
+          className="absolute inset-0"
+        >
+          {/* Top-right diagonal lines */}
+          <div className="absolute top-0 right-0 w-1/2 h-full">
+            <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+              <line x1="20" y1="0" x2="100" y2="80" stroke="hsl(var(--secondary))" strokeWidth="0.15" strokeOpacity="0.3" />
+              <line x1="40" y1="0" x2="100" y2="60" stroke="hsl(var(--secondary))" strokeWidth="0.1" strokeOpacity="0.2" />
+              <line x1="60" y1="0" x2="100" y2="40" stroke="hsl(var(--secondary))" strokeWidth="0.15" strokeOpacity="0.25" />
+              <line x1="80" y1="0" x2="100" y2="20" stroke="hsl(var(--secondary))" strokeWidth="0.1" strokeOpacity="0.15" />
+            </svg>
+          </div>
+          
+          {/* Bottom-left wave pattern */}
+          <div className="absolute bottom-0 left-0 w-full h-32">
+            <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1200 120">
+              <motion.path
+                d="M0,60 C150,20 350,100 600,60 C850,20 1050,100 1200,60 L1200,120 L0,120 Z"
+                fill="none"
+                stroke="hsl(var(--secondary))"
+                strokeWidth="1"
+                strokeOpacity="0.2"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ delay: 1, duration: 2, ease: "easeInOut" }}
+              />
+              <motion.path
+                d="M0,80 C200,40 400,120 600,80 C800,40 1000,120 1200,80 L1200,120 L0,120 Z"
+                fill="none"
+                stroke="hsl(var(--primary))"
+                strokeWidth="0.5"
+                strokeOpacity="0.15"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ delay: 1.3, duration: 2, ease: "easeInOut" }}
+              />
+            </svg>
+          </div>
+        </motion.div>
+
+        {/* Animated floating diagonal accent */}
+        <motion.div
+          className="absolute top-1/4 right-10 w-px h-32 bg-gradient-to-b from-transparent via-secondary/40 to-transparent"
+          animate={{ 
+            y: [0, 20, 0],
+            opacity: [0.3, 0.6, 0.3]
+          }}
+          transition={{ 
+            duration: 4, 
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          style={{ transform: "rotate(45deg)" }}
+        />
+        <motion.div
+          className="absolute top-1/3 right-24 w-px h-24 bg-gradient-to-b from-transparent via-primary/30 to-transparent"
+          animate={{ 
+            y: [0, -15, 0],
+            opacity: [0.2, 0.5, 0.2]
+          }}
+          transition={{ 
+            duration: 5, 
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.5
+          }}
+          style={{ transform: "rotate(45deg)" }}
+        />
+        
+        {/* Corner accent lines */}
+        <div className="absolute top-20 right-20 w-20 h-20 border-t border-r border-secondary/20 rounded-tr-lg" />
+        <div className="absolute bottom-32 left-10 w-16 h-16 border-b border-l border-primary/15 rounded-bl-lg" />
+      </div>
+
       {/* Carousel Arrows */}
       <button
         onClick={prevSlide}

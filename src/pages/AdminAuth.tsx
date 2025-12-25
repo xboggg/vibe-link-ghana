@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
+import { useTOTP } from "@/hooks/useTOTP";
 import { toast } from "sonner";
-import { Lock, Mail, User, Loader2 } from "lucide-react";
+import { Lock, Mail, User, Loader2, Shield } from "lucide-react";
 import { z } from "zod";
+import { TwoFactorSetup } from "@/components/auth/TwoFactorSetup";
+import { TwoFactorVerify } from "@/components/auth/TwoFactorVerify";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -21,10 +24,13 @@ const signupSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+type AuthStep = 'login' | 'signup' | '2fa-verify' | '2fa-setup';
+
 const AdminAuth = () => {
   const navigate = useNavigate();
   const { user, loading, signIn, signUp } = useAuth();
-  const [isLogin, setIsLogin] = useState(true);
+  const { getStatus } = useTOTP();
+  const [step, setStep] = useState<AuthStep>('login');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -32,12 +38,25 @@ const AdminAuth = () => {
     password: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [pendingNavigation, setPendingNavigation] = useState(false);
 
   useEffect(() => {
-    if (user && !loading) {
-      navigate("/admin");
-    }
-  }, [user, loading, navigate]);
+    const checkAuth = async () => {
+      if (user && !loading) {
+        // Check if 2FA is enabled
+        const status = await getStatus();
+        if (status.enabled && !pendingNavigation) {
+          setStep('2fa-verify');
+        } else if (!status.hasSetup && step !== '2fa-setup') {
+          // Prompt to set up 2FA for new users
+          setStep('2fa-setup');
+        } else if (pendingNavigation) {
+          navigate("/admin");
+        }
+      }
+    };
+    checkAuth();
+  }, [user, loading, navigate, pendingNavigation]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,7 +69,7 @@ const AdminAuth = () => {
     setErrors({});
 
     try {
-      if (isLogin) {
+      if (step === 'login') {
         const result = loginSchema.safeParse(formData);
         if (!result.success) {
           const fieldErrors: Record<string, string> = {};
@@ -73,9 +92,9 @@ const AdminAuth = () => {
           }
         } else {
           toast.success("Signed in successfully!");
-          navigate("/admin");
+          // Check 2FA status will happen in useEffect
         }
-      } else {
+      } else if (step === 'signup') {
         const result = signupSchema.safeParse(formData);
         if (!result.success) {
           const fieldErrors: Record<string, string> = {};
@@ -98,7 +117,7 @@ const AdminAuth = () => {
           }
         } else {
           toast.success("Account created! You can now sign in.");
-          setIsLogin(true);
+          setStep('login');
         }
       }
     } catch (error) {
@@ -106,6 +125,28 @@ const AdminAuth = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handle2FASuccess = () => {
+    setPendingNavigation(true);
+    navigate("/admin");
+  };
+
+  const handle2FASetupComplete = () => {
+    setPendingNavigation(true);
+    navigate("/admin");
+  };
+
+  const handle2FASkip = () => {
+    setPendingNavigation(true);
+    navigate("/admin");
+  };
+
+  const handle2FACancel = async () => {
+    // Sign out and return to login
+    const { signOut } = useAuth();
+    await signOut();
+    setStep('login');
   };
 
   if (loading) {
@@ -129,113 +170,141 @@ const AdminAuth = () => {
             className="max-w-md mx-auto"
           >
             <div className="bg-card rounded-2xl border border-border p-8 shadow-xl">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <Lock className="h-8 w-8 text-primary" />
-                </div>
-                <h1 className="text-2xl font-bold text-foreground">
-                  {isLogin ? "Admin Login" : "Create Account"}
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                  {isLogin
-                    ? "Sign in to access the admin dashboard"
-                    : "Create an account to get started"}
-                </p>
-              </div>
+              {/* 2FA Verification */}
+              {step === '2fa-verify' && (
+                <TwoFactorVerify 
+                  onSuccess={handle2FASuccess}
+                  onCancel={handle2FACancel}
+                />
+              )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {!isLogin && (
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="fullName"
-                        name="fullName"
-                        type="text"
-                        placeholder="John Doe"
-                        value={formData.fullName}
-                        onChange={handleChange}
-                        className="pl-10"
-                      />
+              {/* 2FA Setup */}
+              {step === '2fa-setup' && (
+                <TwoFactorSetup 
+                  onComplete={handle2FASetupComplete}
+                  onSkip={handle2FASkip}
+                />
+              )}
+
+              {/* Login/Signup Forms */}
+              {(step === 'login' || step === 'signup') && (
+                <>
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                      <Lock className="h-8 w-8 text-primary" />
                     </div>
-                    {errors.fullName && (
-                      <p className="text-sm text-destructive">{errors.fullName}</p>
+                    <h1 className="text-2xl font-bold text-foreground">
+                      {step === 'login' ? "Admin Login" : "Create Account"}
+                    </h1>
+                    <p className="text-muted-foreground mt-2">
+                      {step === 'login'
+                        ? "Sign in to access the admin dashboard"
+                        : "Create an account to get started"}
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    {step === 'signup' && (
+                      <div className="space-y-2">
+                        <Label htmlFor="fullName">Full Name</Label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="fullName"
+                            name="fullName"
+                            type="text"
+                            placeholder="John Doe"
+                            value={formData.fullName}
+                            onChange={handleChange}
+                            className="pl-10"
+                          />
+                        </div>
+                        {errors.fullName && (
+                          <p className="text-sm text-destructive">{errors.fullName}</p>
+                        )}
+                      </div>
                     )}
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          placeholder="you@example.com"
+                          value={formData.email}
+                          onChange={handleChange}
+                          className="pl-10"
+                        />
+                      </div>
+                      {errors.email && (
+                        <p className="text-sm text-destructive">{errors.email}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="password"
+                          name="password"
+                          type="password"
+                          placeholder="••••••••"
+                          value={formData.password}
+                          onChange={handleChange}
+                          className="pl-10"
+                        />
+                      </div>
+                      {errors.password && (
+                        <p className="text-sm text-destructive">{errors.password}</p>
+                      )}
+                    </div>
+
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      size="lg"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {step === 'login' ? "Signing in..." : "Creating account..."}
+                        </>
+                      ) : step === 'login' ? (
+                        "Sign In"
+                      ) : (
+                        "Create Account"
+                      )}
+                    </Button>
+                  </form>
+
+                  <div className="mt-6 text-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStep(step === 'login' ? 'signup' : 'login');
+                        setErrors({});
+                      }}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      {step === 'login'
+                        ? "Don't have an account? Sign up"
+                        : "Already have an account? Sign in"}
+                    </button>
                   </div>
-                )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      value={formData.email}
-                      onChange={handleChange}
-                      className="pl-10"
-                    />
+                  <div className="mt-4 pt-4 border-t border-border">
+                    <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                      <Shield className="h-3 w-3" />
+                      <span>Protected with Two-Factor Authentication</span>
+                    </div>
                   </div>
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="pl-10"
-                    />
-                  </div>
-                  {errors.password && (
-                    <p className="text-sm text-destructive">{errors.password}</p>
-                  )}
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  size="lg"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {isLogin ? "Signing in..." : "Creating account..."}
-                    </>
-                  ) : isLogin ? (
-                    "Sign In"
-                  ) : (
-                    "Create Account"
-                  )}
-                </Button>
-              </form>
-
-              <div className="mt-6 text-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsLogin(!isLogin);
-                    setErrors({});
-                  }}
-                  className="text-sm text-primary hover:underline"
-                >
-                  {isLogin
-                    ? "Don't have an account? Sign up"
-                    : "Already have an account? Sign in"}
-                </button>
-              </div>
+                </>
+              )}
             </div>
           </motion.div>
         </div>

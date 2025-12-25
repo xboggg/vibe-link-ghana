@@ -11,9 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { 
   UserPlus, Shield, Trash2, RefreshCw, Mail, Key, 
-  User, Crown, Users, AlertTriangle, CheckCircle
+  User, Crown, Users, AlertTriangle, CheckCircle, ShieldCheck, ShieldOff
 } from 'lucide-react';
 import { z } from 'zod';
+import { useTOTP } from '@/hooks/useTOTP';
+import { TwoFactorSetup } from '@/components/auth/TwoFactorSetup';
 
 interface UserWithRole {
   id: string;
@@ -43,8 +45,14 @@ export function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [twoFactorDialogOpen, setTwoFactorDialogOpen] = useState(false);
+  const [disabling2FA, setDisabling2FA] = useState(false);
+  const [disable2FACode, setDisable2FACode] = useState('');
   const [inviting, setInviting] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
+  const [totpStatus, setTotpStatus] = useState<{ enabled: boolean; hasSetup: boolean }>({ enabled: false, hasSetup: false });
+  
+  const { getStatus, disable: disableTOTP } = useTOTP();
   
   const [inviteForm, setInviteForm] = useState({
     email: '',
@@ -62,7 +70,28 @@ export function UserManagement() {
 
   useEffect(() => {
     fetchUsers();
+    checkTOTPStatus();
   }, []);
+
+  const checkTOTPStatus = async () => {
+    const status = await getStatus();
+    setTotpStatus(status);
+  };
+
+  const handleDisable2FA = async () => {
+    if (disable2FACode.length !== 6) {
+      toast.error('Please enter a 6-digit code');
+      return;
+    }
+    setDisabling2FA(true);
+    const success = await disableTOTP(disable2FACode);
+    if (success) {
+      toast.success('Two-factor authentication disabled');
+      setTotpStatus({ enabled: false, hasSetup: false });
+      setDisable2FACode('');
+    }
+    setDisabling2FA(false);
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -299,6 +328,73 @@ export function UserManagement() {
                   </Button>
                 </div>
               </form>
+            </DialogContent>
+          </Dialog>
+
+          {/* 2FA Management */}
+          <Dialog open={twoFactorDialogOpen} onOpenChange={setTwoFactorDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant={totpStatus.enabled ? "outline" : "default"}>
+                {totpStatus.enabled ? (
+                  <>
+                    <ShieldCheck className="h-4 w-4 mr-2 text-green-500" />
+                    2FA Enabled
+                  </>
+                ) : (
+                  <>
+                    <Shield className="h-4 w-4 mr-2" />
+                    Enable 2FA
+                  </>
+                )}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Two-Factor Authentication</DialogTitle>
+                <DialogDescription>
+                  {totpStatus.enabled 
+                    ? 'Manage your 2FA settings'
+                    : 'Add an extra layer of security to your account'
+                  }
+                </DialogDescription>
+              </DialogHeader>
+              {totpStatus.enabled ? (
+                <div className="space-y-4 pt-4">
+                  <div className="flex items-center gap-3 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+                    <ShieldCheck className="h-6 w-6 text-green-500" />
+                    <div>
+                      <p className="font-medium text-green-700 dark:text-green-400">2FA is Active</p>
+                      <p className="text-sm text-muted-foreground">Your account is protected</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Enter code to disable 2FA</Label>
+                    <Input
+                      value={disable2FACode}
+                      onChange={(e) => setDisable2FACode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="000000"
+                      className="text-center font-mono"
+                      maxLength={6}
+                    />
+                  </div>
+                  <Button 
+                    variant="destructive" 
+                    className="w-full"
+                    onClick={handleDisable2FA}
+                    disabled={disabling2FA || disable2FACode.length !== 6}
+                  >
+                    <ShieldOff className="h-4 w-4 mr-2" />
+                    Disable 2FA
+                  </Button>
+                </div>
+              ) : (
+                <TwoFactorSetup 
+                  onComplete={() => {
+                    setTwoFactorDialogOpen(false);
+                    checkTOTPStatus();
+                  }}
+                />
+              )}
             </DialogContent>
           </Dialog>
 

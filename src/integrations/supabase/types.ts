@@ -37,6 +37,7 @@ export type Database = {
           package_price: number
           payment_status: Database["public"]["Enums"]["payment_status"]
           preferred_delivery_date: string | null
+          reference_images: string[] | null
           special_message: string | null
           special_requests: string | null
           style_preferences: string[] | null
@@ -67,6 +68,7 @@ export type Database = {
           package_price: number
           payment_status?: Database["public"]["Enums"]["payment_status"]
           preferred_delivery_date?: string | null
+          reference_images?: string[] | null
           special_message?: string | null
           special_requests?: string | null
           style_preferences?: string[] | null
@@ -97,6 +99,7 @@ export type Database = {
           package_price?: number
           payment_status?: Database["public"]["Enums"]["payment_status"]
           preferred_delivery_date?: string | null
+          reference_images?: string[] | null
           special_message?: string | null
           special_requests?: string | null
           style_preferences?: string[] | null

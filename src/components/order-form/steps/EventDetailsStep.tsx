@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { eventDetailsSchema } from "@/lib/validationSchemas";
 
 interface EventDetailsStepProps {
   formData: OrderFormData;
@@ -22,9 +24,40 @@ export const EventDetailsStep = ({
   onNext,
   onPrev,
 }: EventDetailsStepProps) => {
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const selectedEvent = eventTypes.find((e) => e.id === formData.eventType);
   
   const isValid = formData.eventTitle && formData.eventDate && formData.eventVenue;
+
+  const validateAndProceed = () => {
+    const result = eventDetailsSchema.safeParse({
+      eventTitle: formData.eventTitle,
+      eventDate: formData.eventDate,
+      eventTime: formData.eventTime,
+      eventVenue: formData.eventVenue,
+      eventAddress: formData.eventAddress,
+      celebrantNames: formData.celebrantNames,
+      additionalInfo: formData.additionalInfo,
+    });
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({});
+    onNext();
+  };
+
+  const clearError = (field: string) => {
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
 
   return (
     <div className="space-y-6">
@@ -42,15 +75,22 @@ export const EventDetailsStep = ({
         <div className="space-y-2">
           <Label htmlFor="eventTitle" className="flex items-center gap-2">
             <Users className="h-4 w-4 text-primary" />
-            Event Title / Headline
+            Event Title / Headline *
           </Label>
           <Input
             id="eventTitle"
             placeholder="e.g., John & Sarah's Wedding, Celebrating Kofi's Life"
             value={formData.eventTitle}
-            onChange={(e) => updateFormData({ eventTitle: e.target.value })}
-            className="h-12"
+            onChange={(e) => {
+              updateFormData({ eventTitle: e.target.value });
+              clearError("eventTitle");
+            }}
+            className={`h-12 ${errors.eventTitle ? "border-destructive" : ""}`}
+            maxLength={100}
           />
+          {errors.eventTitle && (
+            <p className="text-sm text-destructive">{errors.eventTitle}</p>
+          )}
         </div>
 
         {/* Celebrant Names */}
@@ -62,6 +102,7 @@ export const EventDetailsStep = ({
             value={formData.celebrantNames}
             onChange={(e) => updateFormData({ celebrantNames: e.target.value })}
             className="h-12"
+            maxLength={200}
           />
         </div>
 
@@ -70,7 +111,7 @@ export const EventDetailsStep = ({
           <div className="space-y-2">
             <Label className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-primary" />
-              Event Date
+              Event Date *
             </Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -78,7 +119,8 @@ export const EventDetailsStep = ({
                   variant="outline"
                   className={cn(
                     "w-full h-12 justify-start text-left font-normal",
-                    !formData.eventDate && "text-muted-foreground"
+                    !formData.eventDate && "text-muted-foreground",
+                    errors.eventDate && "border-destructive"
                   )}
                 >
                   {formData.eventDate ? (
@@ -92,12 +134,18 @@ export const EventDetailsStep = ({
                 <CalendarComponent
                   mode="single"
                   selected={formData.eventDate || undefined}
-                  onSelect={(date) => updateFormData({ eventDate: date || null })}
+                  onSelect={(date) => {
+                    updateFormData({ eventDate: date || null });
+                    clearError("eventDate");
+                  }}
                   initialFocus
                   disabled={(date) => date < new Date()}
                 />
               </PopoverContent>
             </Popover>
+            {errors.eventDate && (
+              <p className="text-sm text-destructive">{errors.eventDate}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -119,15 +167,22 @@ export const EventDetailsStep = ({
         <div className="space-y-2">
           <Label htmlFor="eventVenue" className="flex items-center gap-2">
             <MapPin className="h-4 w-4 text-primary" />
-            Venue Name
+            Venue Name *
           </Label>
           <Input
             id="eventVenue"
             placeholder="e.g., La Palm Royal Beach Hotel"
             value={formData.eventVenue}
-            onChange={(e) => updateFormData({ eventVenue: e.target.value })}
-            className="h-12"
+            onChange={(e) => {
+              updateFormData({ eventVenue: e.target.value });
+              clearError("eventVenue");
+            }}
+            className={`h-12 ${errors.eventVenue ? "border-destructive" : ""}`}
+            maxLength={200}
           />
+          {errors.eventVenue && (
+            <p className="text-sm text-destructive">{errors.eventVenue}</p>
+          )}
         </div>
 
         {/* Address */}
@@ -139,6 +194,7 @@ export const EventDetailsStep = ({
             value={formData.eventAddress}
             onChange={(e) => updateFormData({ eventAddress: e.target.value })}
             className="h-12"
+            maxLength={300}
           />
         </div>
 
@@ -151,6 +207,7 @@ export const EventDetailsStep = ({
             value={formData.additionalInfo}
             onChange={(e) => updateFormData({ additionalInfo: e.target.value })}
             rows={3}
+            maxLength={1000}
           />
         </div>
       </div>
@@ -160,7 +217,7 @@ export const EventDetailsStep = ({
           <ArrowLeft className="h-4 w-4" />
           Back
         </Button>
-        <Button onClick={onNext} disabled={!isValid} size="lg" className="gap-2">
+        <Button onClick={validateAndProceed} disabled={!isValid} size="lg" className="gap-2">
           Continue
           <ArrowRight className="h-4 w-4" />
         </Button>

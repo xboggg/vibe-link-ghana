@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
+import { contactSchema } from "@/lib/validationSchemas";
 
 interface ContactStepProps {
   formData: OrderFormData;
@@ -30,13 +32,43 @@ export const ContactStep = ({
   isSubmitting,
   total,
 }: ContactStepProps) => {
-  const isValid = formData.fullName && formData.phone;
+  const [errors, setErrors] = useState<Record<string, string>>({});
   
   const selectedEvent = eventTypes.find((e) => e.id === formData.eventType);
   const selectedPackage = packages.find((p) => p.id === formData.selectedPackage);
   const selectedPalette = colorPalettes.find((c) => c.id === formData.colorPalette);
   const selectedStyle = stylePreferences.find((s) => s.id === formData.stylePreference);
   const selectedAddOnsList = formData.selectedAddOns.map((id) => addOns.find((a) => a.id === id)).filter(Boolean);
+
+  const validateAndSubmit = () => {
+    const result = contactSchema.safeParse({
+      fullName: formData.fullName,
+      email: formData.email || "",
+      phone: formData.phone,
+      whatsapp: formData.whatsapp || "",
+      hearAboutUs: formData.hearAboutUs,
+    });
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({});
+    onSubmit();
+  };
+
+  const isValid = formData.fullName && formData.phone;
+
+  const clearError = (field: string) => {
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
 
   return (
     <div className="space-y-6">
@@ -61,9 +93,16 @@ export const ContactStep = ({
               id="fullName"
               placeholder="Your name"
               value={formData.fullName}
-              onChange={(e) => updateFormData({ fullName: e.target.value })}
-              className="h-12"
+              onChange={(e) => {
+                updateFormData({ fullName: e.target.value });
+                clearError("fullName");
+              }}
+              className={`h-12 ${errors.fullName ? "border-destructive" : ""}`}
+              maxLength={100}
             />
+            {errors.fullName && (
+              <p className="text-sm text-destructive">{errors.fullName}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="email" className="flex items-center gap-2">
@@ -75,9 +114,16 @@ export const ContactStep = ({
               type="email"
               placeholder="your@email.com"
               value={formData.email}
-              onChange={(e) => updateFormData({ email: e.target.value })}
-              className="h-12"
+              onChange={(e) => {
+                updateFormData({ email: e.target.value });
+                clearError("email");
+              }}
+              className={`h-12 ${errors.email ? "border-destructive" : ""}`}
+              maxLength={255}
             />
+            {errors.email && (
+              <p className="text-sm text-destructive">{errors.email}</p>
+            )}
           </div>
         </div>
 
@@ -91,9 +137,15 @@ export const ContactStep = ({
               id="phone"
               placeholder="024 XXX XXXX"
               value={formData.phone}
-              onChange={(e) => updateFormData({ phone: e.target.value })}
-              className="h-12"
+              onChange={(e) => {
+                updateFormData({ phone: e.target.value });
+                clearError("phone");
+              }}
+              className={`h-12 ${errors.phone ? "border-destructive" : ""}`}
             />
+            {errors.phone && (
+              <p className="text-sm text-destructive">{errors.phone}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="whatsapp" className="flex items-center gap-2">
@@ -104,9 +156,15 @@ export const ContactStep = ({
               id="whatsapp"
               placeholder="Same as phone if blank"
               value={formData.whatsapp}
-              onChange={(e) => updateFormData({ whatsapp: e.target.value })}
-              className="h-12"
+              onChange={(e) => {
+                updateFormData({ whatsapp: e.target.value });
+                clearError("whatsapp");
+              }}
+              className={`h-12 ${errors.whatsapp ? "border-destructive" : ""}`}
             />
+            {errors.whatsapp && (
+              <p className="text-sm text-destructive">{errors.whatsapp}</p>
+            )}
           </div>
         </div>
 
@@ -214,7 +272,7 @@ export const ContactStep = ({
           Back
         </Button>
         <Button
-          onClick={onSubmit}
+          onClick={validateAndSubmit}
           disabled={!isValid || isSubmitting}
           size="lg"
           variant="gold"

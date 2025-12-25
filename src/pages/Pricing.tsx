@@ -4,7 +4,53 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { CTASection } from "@/components/sections/CTASection";
 import { Check, X, Star, MessageCircle, Plus } from "lucide-react";
-import SEO from "@/components/SEO";
+import SEO, { createBreadcrumbSchema } from "@/components/SEO";
+
+const pricingBreadcrumb = createBreadcrumbSchema([
+  { name: "Home", url: "/" },
+  { name: "Pricing", url: "/pricing" },
+]);
+
+const pricingSchema = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: "VibeLink Digital Invitations",
+  description: "Digital event invitations for weddings, funerals, naming ceremonies in Ghana",
+  brand: {
+    "@type": "Brand",
+    name: "VibeLink Ghana",
+  },
+  offers: [
+    {
+      "@type": "Offer",
+      name: "Starter Vibe",
+      price: "500",
+      priceCurrency: "GHS",
+      description: "Best for simple, intimate events",
+    },
+    {
+      "@type": "Offer",
+      name: "Classic Vibe",
+      price: "1200",
+      priceCurrency: "GHS",
+      description: "Best for weddings, funerals, most events",
+    },
+    {
+      "@type": "Offer",
+      name: "Prestige Vibe",
+      price: "2500",
+      priceCurrency: "GHS",
+      description: "Best for premium celebrations",
+    },
+    {
+      "@type": "Offer",
+      name: "Royal Vibe",
+      price: "5000",
+      priceCurrency: "GHS",
+      description: "Best for exclusive, luxury events",
+    },
+  ],
+};
 
 const packages = [
   {
@@ -155,6 +201,7 @@ const Pricing = () => {
         description="Affordable digital invitation packages starting from GHS 500. Choose from Starter, Classic, or Premium packages for your wedding, funeral, or event in Ghana."
         keywords="digital invitation prices Ghana, wedding invitation cost, event invitation packages Accra"
         canonical="/pricing"
+        jsonLd={[pricingSchema, pricingBreadcrumb]}
       />
       {/* Hero */}
       <section className="pt-24 lg:pt-32 pb-16 bg-gradient-to-b from-[#6B46C1] via-[#553C9A] to-[#44337A]">

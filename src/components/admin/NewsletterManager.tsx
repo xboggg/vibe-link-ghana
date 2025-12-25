@@ -3,15 +3,15 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Trash2, Search, Mail, Users, Download, ToggleLeft, ToggleRight, Send, Loader2 } from "lucide-react";
+import { Trash2, Search, Mail, Users, Download, ToggleLeft, ToggleRight, Send, Loader2, Paperclip, X } from "lucide-react";
 import { format } from "date-fns";
+import { RichTextEditor } from "./RichTextEditor";
 
 interface Subscriber {
   id: string;
@@ -26,6 +26,7 @@ export function NewsletterManager() {
   const [composeOpen, setComposeOpen] = useState(false);
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
+  const [attachments, setAttachments] = useState<File[]>([]);
   const queryClient = useQueryClient();
 
   const { data: subscribers = [], isLoading } = useQuery({
@@ -91,6 +92,7 @@ export function NewsletterManager() {
       setComposeOpen(false);
       setSubject("");
       setContent("");
+      setAttachments([]);
     },
     onError: (error: any) => {
       toast.error(error.message || "Failed to send newsletter");
@@ -123,6 +125,39 @@ export function NewsletterManager() {
     toast.success("Subscribers exported to CSV");
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newFiles = Array.from(files);
+      // Limit total attachments to 5 and max 5MB each
+      const validFiles = newFiles.filter(file => {
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`${file.name} is too large. Max 5MB per file.`);
+          return false;
+        }
+        return true;
+      });
+      
+      if (attachments.length + validFiles.length > 5) {
+        toast.error("Maximum 5 attachments allowed");
+        return;
+      }
+      
+      setAttachments(prev => [...prev, ...validFiles]);
+    }
+    e.target.value = ''; // Reset input
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -138,7 +173,7 @@ export function NewsletterManager() {
                 Send Newsletter
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Compose Newsletter</DialogTitle>
               </DialogHeader>
@@ -152,17 +187,74 @@ export function NewsletterManager() {
                     onChange={(e) => setSubject(e.target.value)}
                   />
                 </div>
+                
                 <div className="space-y-2">
-                  <Label htmlFor="content">Content (HTML supported)</Label>
-                  <Textarea
-                    id="content"
-                    placeholder="Enter newsletter content... You can use HTML for formatting."
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    rows={10}
+                  <Label>Content</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Use the toolbar for formatting: bold, italic, headings, lists, links, images, and more.
+                  </p>
+                  <RichTextEditor
+                    content={content}
+                    onChange={setContent}
                   />
                 </div>
-                <div className="flex items-center justify-between pt-4">
+
+                {/* Attachments Section */}
+                <div className="space-y-2">
+                  <Label>Attachments</Label>
+                  <div className="border border-dashed border-border rounded-lg p-4">
+                    <input
+                      type="file"
+                      id="attachments"
+                      multiple
+                      onChange={handleFileChange}
+                      className="hidden"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif"
+                    />
+                    <label
+                      htmlFor="attachments"
+                      className="flex flex-col items-center gap-2 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Paperclip className="h-8 w-8" />
+                      <span className="text-sm">Click to attach files</span>
+                      <span className="text-xs">PDF, DOC, XLS, Images (Max 5MB each, up to 5 files)</span>
+                    </label>
+                  </div>
+
+                  {/* Attached Files List */}
+                  {attachments.length > 0 && (
+                    <div className="space-y-2 mt-3">
+                      {attachments.map((file, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2"
+                        >
+                          <div className="flex items-center gap-2 overflow-hidden">
+                            <Paperclip className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                            <span className="text-sm truncate">{file.name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              ({formatFileSize(file.size)})
+                            </span>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => removeAttachment(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Note: Attachments will be included in the email. Large files may affect delivery.
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t">
                   <p className="text-sm text-muted-foreground">
                     Will be sent to {activeCount} active subscriber{activeCount !== 1 ? 's' : ''}
                   </p>

@@ -38,6 +38,7 @@ import {
   Newspaper,
 } from "lucide-react";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
+import { OrderAnalytics } from "@/components/admin/OrderAnalytics";
 import { FollowUpHistory } from "@/components/admin/FollowUpHistory";
 import { FollowUpSettings } from "@/components/admin/FollowUpSettings";
 import { BlogManager } from "@/components/admin/BlogManager";
@@ -644,7 +645,22 @@ const Admin = () => {
         );
 
       case "analytics":
-        return <AnalyticsDashboard />;
+        return (
+          <div className="space-y-6">
+            <Tabs defaultValue="orders" className="w-full">
+              <TabsList className="mb-4">
+                <TabsTrigger value="orders">Order Analytics</TabsTrigger>
+                <TabsTrigger value="traffic">Site Traffic</TabsTrigger>
+              </TabsList>
+              <TabsContent value="orders">
+                <OrderAnalytics />
+              </TabsContent>
+              <TabsContent value="traffic">
+                <AnalyticsDashboard />
+              </TabsContent>
+            </Tabs>
+          </div>
+        );
 
       case "blog":
         return <BlogManager />;

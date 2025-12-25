@@ -21,10 +21,8 @@ const RECAPTCHA_SITE_KEY = "6LeEKjYsAAAAAPHV-PE4PQ31TsTTmRPc-ApB19f6";
 declare global {
   interface Window {
     grecaptcha: {
-      enterprise: {
-        ready: (callback: () => void) => void;
-        execute: (siteKey: string, options: { action: string }) => Promise<string>;
-      };
+      ready: (callback: () => void) => void;
+      execute: (siteKey: string, options: { action: string }) => Promise<string>;
     };
   }
 }
@@ -57,9 +55,9 @@ export const ContactStep = ({
   const selectedStyle = stylePreferences.find((s) => s.id === formData.stylePreference);
   const selectedAddOnsList = formData.selectedAddOns.map((id) => addOns.find((a) => a.id === id)).filter(Boolean);
 
-  // Load reCAPTCHA Enterprise script
+  // Load reCAPTCHA v3 script
   useEffect(() => {
-    const scriptId = "recaptcha-enterprise-script";
+    const scriptId = "recaptcha-v3-script";
     if (document.getElementById(scriptId)) {
       setRecaptchaLoaded(true);
       return;
@@ -67,11 +65,11 @@ export const ContactStep = ({
 
     const script = document.createElement("script");
     script.id = scriptId;
-    script.src = `https://www.google.com/recaptcha/enterprise.js?render=${RECAPTCHA_SITE_KEY}`;
+    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
     script.async = true;
     script.defer = true;
     script.onload = () => {
-      window.grecaptcha.enterprise.ready(() => {
+      window.grecaptcha.ready(() => {
         setRecaptchaLoaded(true);
       });
     };
@@ -83,14 +81,14 @@ export const ContactStep = ({
   }, []);
 
   const executeRecaptcha = useCallback(async (): Promise<string | null> => {
-    if (!recaptchaLoaded || !window.grecaptcha?.enterprise) {
+    if (!recaptchaLoaded || !window.grecaptcha) {
       toast.error("Security verification not ready. Please wait.");
       return null;
     }
 
     try {
-      const token = await window.grecaptcha.enterprise.execute(RECAPTCHA_SITE_KEY, {
-        action: "SUBMIT_ORDER",
+      const token = await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, {
+        action: "submit_order",
       });
       return token;
     } catch (error) {
@@ -131,7 +129,7 @@ export const ContactStep = ({
 
       // Verify captcha on server
       const { data, error } = await supabase.functions.invoke("verify-captcha", {
-        body: { token: captchaToken, action: "SUBMIT_ORDER" },
+        body: { token: captchaToken, action: "submit_order" },
       });
 
       if (error || !data?.success) {
@@ -275,11 +273,11 @@ export const ContactStep = ({
           </Select>
         </div>
 
-        {/* reCAPTCHA Enterprise Badge */}
+        {/* reCAPTCHA v3 Badge */}
         <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
           <ShieldCheck className="h-4 w-4 text-primary" />
           <span>
-            Protected by reCAPTCHA Enterprise
+            Protected by reCAPTCHA
             {!recaptchaLoaded && " (loading...)"}
           </span>
         </div>

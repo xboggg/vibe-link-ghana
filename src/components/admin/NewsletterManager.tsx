@@ -8,11 +8,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
-import { Trash2, Search, Mail, Users, Download, ToggleLeft, ToggleRight, Send, Loader2, Paperclip, X, FileText, Megaphone, Gift, CalendarDays } from "lucide-react";
-import { format } from "date-fns";
+import { Trash2, Search, Mail, Users, Download, ToggleLeft, ToggleRight, Send, Loader2, Paperclip, X, FileText, Megaphone, Gift, CalendarDays, Clock } from "lucide-react";
+import { format, addHours, setHours, setMinutes } from "date-fns";
 import { RichTextEditor } from "./RichTextEditor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 interface EmailTemplate {
   id: string;
@@ -119,6 +123,10 @@ export function NewsletterManager() {
   const [content, setContent] = useState("");
   const [attachments, setAttachments] = useState<File[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>("blank");
+  const [scheduleEnabled, setScheduleEnabled] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined);
+  const [scheduledHour, setScheduledHour] = useState("09");
+  const [scheduledMinute, setScheduledMinute] = useState("00");
   const queryClient = useQueryClient();
 
   const handleTemplateChange = (templateId: string) => {
@@ -130,13 +138,24 @@ export function NewsletterManager() {
     }
   };
 
+  const resetForm = () => {
+    setSubject("");
+    setContent("");
+    setAttachments([]);
+    setSelectedTemplate("blank");
+    setScheduleEnabled(false);
+    setScheduledDate(undefined);
+    setScheduledHour("09");
+    setScheduledMinute("00");
+  };
+
   const { data: subscribers = [], isLoading } = useQuery({
-    queryKey: ['newsletter-subscribers'],
+    queryKey: ["newsletter-subscribers"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('newsletter_subscribers')
-        .select('*')
-        .order('subscribed_at', { ascending: false });
+        .from("newsletter_subscribers")
+        .select("*")
+        .order("subscribed_at", { ascending: false });
       
       if (error) throw error;
       return data as Subscriber[];
@@ -378,24 +397,76 @@ export function NewsletterManager() {
                   </p>
                 </div>
 
+                {/* Schedule Section */}
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <Label>Schedule for later</Label>
+                    </div>
+                    <Switch
+                      checked={scheduleEnabled}
+                      onCheckedChange={setScheduleEnabled}
+                    />
+                  </div>
+
+                  {scheduleEnabled && (
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className={cn("justify-start text-left font-normal flex-1", !scheduledDate && "text-muted-foreground")}>
+                            <CalendarDays className="mr-2 h-4 w-4" />
+                            {scheduledDate ? format(scheduledDate, "PPP") : "Pick a date"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar mode="single" selected={scheduledDate} onSelect={setScheduledDate} disabled={(date) => date < new Date()} initialFocus />
+                        </PopoverContent>
+                      </Popover>
+                      <div className="flex gap-2">
+                        <Select value={scheduledHour} onValueChange={setScheduledHour}>
+                          <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {Array.from({ length: 24 }, (_, i) => (
+                              <SelectItem key={i} value={i.toString().padStart(2, "0")}>{i.toString().padStart(2, "0")}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <span className="flex items-center">:</span>
+                        <Select value={scheduledMinute} onValueChange={setScheduledMinute}>
+                          <SelectTrigger className="w-20"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {["00", "15", "30", "45"].map((m) => (
+                              <SelectItem key={m} value={m}>{m}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex items-center justify-between pt-4 border-t">
                   <p className="text-sm text-muted-foreground">
-                    Will be sent to {activeCount} active subscriber{activeCount !== 1 ? 's' : ''}
+                    {scheduleEnabled && scheduledDate 
+                      ? `Scheduled for ${format(scheduledDate, "MMM d")} at ${scheduledHour}:${scheduledMinute}`
+                      : `Will be sent to ${activeCount} active subscriber${activeCount !== 1 ? "s" : ""}`
+                    }
                   </p>
                   <Button 
                     onClick={() => sendNewsletterMutation.mutate()}
-                    disabled={!subject || !content || sendNewsletterMutation.isPending}
+                    disabled={!subject || !content || sendNewsletterMutation.isPending || (scheduleEnabled && !scheduledDate)}
                     className="gap-2"
                   >
                     {sendNewsletterMutation.isPending ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Sending...
+                        {scheduleEnabled ? "Scheduling..." : "Sending..."}
                       </>
                     ) : (
                       <>
-                        <Send className="h-4 w-4" />
-                        Send Now
+                        {scheduleEnabled ? <Clock className="h-4 w-4" /> : <Send className="h-4 w-4" />}
+                        {scheduleEnabled ? "Schedule" : "Send Now"}
                       </>
                     )}
                   </Button>

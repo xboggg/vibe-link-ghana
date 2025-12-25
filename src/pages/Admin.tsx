@@ -39,6 +39,8 @@ import {
 } from "lucide-react";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 import { OrderAnalytics } from "@/components/admin/OrderAnalytics";
+import { ReportBuilder } from "@/components/admin/ReportBuilder";
+import { CampaignAnalytics } from "@/components/admin/CampaignAnalytics";
 import { FollowUpHistory } from "@/components/admin/FollowUpHistory";
 import { FollowUpSettings } from "@/components/admin/FollowUpSettings";
 import { BlogManager } from "@/components/admin/BlogManager";
@@ -648,15 +650,23 @@ const Admin = () => {
         return (
           <div className="space-y-6">
             <Tabs defaultValue="orders" className="w-full">
-              <TabsList className="mb-4">
+              <TabsList className="mb-4 flex-wrap h-auto gap-1">
                 <TabsTrigger value="orders">Order Analytics</TabsTrigger>
                 <TabsTrigger value="traffic">Site Traffic</TabsTrigger>
+                <TabsTrigger value="reports">Report Builder</TabsTrigger>
+                <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
               </TabsList>
               <TabsContent value="orders">
                 <OrderAnalytics />
               </TabsContent>
               <TabsContent value="traffic">
                 <AnalyticsDashboard />
+              </TabsContent>
+              <TabsContent value="reports">
+                <ReportBuilder />
+              </TabsContent>
+              <TabsContent value="campaigns">
+                <CampaignAnalytics />
               </TabsContent>
             </Tabs>
           </div>

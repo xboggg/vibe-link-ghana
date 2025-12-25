@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { CTASection } from "@/components/sections/CTASection";
 import { Check, X, Star, MessageCircle, Plus } from "lucide-react";
+import SEO from "@/components/SEO";
 
 const packages = [
   {
@@ -149,6 +150,12 @@ const Pricing = () => {
 
   return (
     <Layout>
+      <SEO 
+        title="Pricing"
+        description="Affordable digital invitation packages starting from GHS 500. Choose from Starter, Classic, or Premium packages for your wedding, funeral, or event in Ghana."
+        keywords="digital invitation prices Ghana, wedding invitation cost, event invitation packages Accra"
+        canonical="/pricing"
+      />
       {/* Hero */}
       <section className="pt-24 lg:pt-32 pb-16 bg-gradient-to-b from-[#6B46C1] via-[#553C9A] to-[#44337A]">
         <div className="container mx-auto px-4 lg:px-8">

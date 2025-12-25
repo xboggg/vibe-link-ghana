@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { CTASection } from "@/components/sections/CTASection";
+import SEO from "@/components/SEO";
 import {
   Heart,
   Users,
@@ -161,6 +162,12 @@ const addOns = [
 const Services = () => {
   return (
     <Layout>
+      <SEO 
+        title="Our Services"
+        description="Digital invitations for weddings, funerals, naming ceremonies, anniversaries, graduations & corporate events in Ghana. Beautiful designs, easy sharing via WhatsApp."
+        keywords="wedding invitations Ghana, funeral programs Accra, naming ceremony invitations, digital event invitations"
+        canonical="/services"
+      />
       {/* Hero */}
       <section className="pt-24 lg:pt-32 pb-16 bg-gradient-to-b from-[#6B46C1] via-[#553C9A] to-[#44337A]">
         <div className="container mx-auto px-4 lg:px-8">

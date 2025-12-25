@@ -20,14 +20,14 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`Unsubscribe request for: ${email}`);
 
     if (!email) {
-      return generateHtmlResponse("error", "Invalid unsubscribe link. Email address is missing.");
+      return generateHtmlResponse("error", null, null, "Invalid unsubscribe link. Email address is missing.");
     }
 
     // Simple token validation (base64 of email)
     const expectedToken = btoa(email).replace(/=/g, "");
     if (token !== expectedToken) {
       console.error("Token mismatch for unsubscribe");
-      return generateHtmlResponse("error", "Invalid unsubscribe link. Please use the link from your email.");
+      return generateHtmlResponse("error", null, null, "Invalid unsubscribe link. Please use the link from your email.");
     }
 
     const supabaseAdmin = createClient(
@@ -44,11 +44,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (fetchError || !subscriber) {
       console.log("Subscriber not found:", email);
-      return generateHtmlResponse("not_found", "This email address is not subscribed to our newsletter.");
+      return generateHtmlResponse("not_found", null, null, "This email address is not subscribed to our newsletter.");
     }
 
     if (!subscriber.is_active) {
-      return generateHtmlResponse("already_unsubscribed", "You have already been unsubscribed from our newsletter.");
+      return generateHtmlResponse("already_unsubscribed", email, token, "You have already been unsubscribed from our newsletter.");
     }
 
     // Deactivate subscriber
@@ -59,22 +59,38 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (updateError) {
       console.error("Error deactivating subscriber:", updateError);
-      return generateHtmlResponse("error", "Something went wrong. Please try again later.");
+      return generateHtmlResponse("error", email, token, "Something went wrong. Please try again later.");
     }
 
     console.log(`Successfully unsubscribed: ${email}`);
-    return generateHtmlResponse("success", "You have been successfully unsubscribed from our newsletter.");
+    return generateHtmlResponse("success", email, token, "You have been successfully unsubscribed from our newsletter.");
 
   } catch (error: any) {
     console.error("Unsubscribe error:", error);
-    return generateHtmlResponse("error", "Something went wrong. Please try again later.");
+    return generateHtmlResponse("error", null, null, "Something went wrong. Please try again later.");
   }
 };
 
-function generateHtmlResponse(status: string, message: string): Response {
+function generateHtmlResponse(status: string, email: string | null, token: string | null, message: string): Response {
   const isSuccess = status === "success" || status === "already_unsubscribed";
   const iconColor = isSuccess ? "#22c55e" : status === "not_found" ? "#f59e0b" : "#ef4444";
   const icon = isSuccess ? "✓" : status === "not_found" ? "?" : "✕";
+  
+  const baseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  const preferencesUrl = email && token ? `${baseUrl}/functions/v1/newsletter-preferences?email=${encodeURIComponent(email)}&token=${token}` : null;
+  
+  let extraContent = "";
+  if (status === "success" && preferencesUrl) {
+    extraContent = `
+      <p style="color: #64748b; font-size: 14px; margin-bottom: 16px;">Changed your mind? You can re-subscribe or manage your preferences.</p>
+      <a href="${preferencesUrl}" class="button secondary">Manage Preferences</a>
+    `;
+  } else if (status === "already_unsubscribed" && preferencesUrl) {
+    extraContent = `
+      <p style="color: #64748b; font-size: 14px; margin-bottom: 16px;">Want to receive our newsletters again?</p>
+      <a href="${preferencesUrl}" class="button">Re-subscribe</a>
+    `;
+  }
   
   const html = `
     <!DOCTYPE html>
@@ -148,10 +164,19 @@ function generateHtmlResponse(status: string, message: string): Response {
           border-radius: 8px;
           font-weight: 600;
           transition: transform 0.2s, box-shadow 0.2s;
+          margin-bottom: 12px;
         }
         .button:hover {
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        .button.secondary {
+          background: #f1f5f9;
+          color: #475569;
+        }
+        .button.secondary:hover {
+          background: #e2e8f0;
+          box-shadow: none;
         }
         .footer {
           padding: 20px 30px;
@@ -171,7 +196,8 @@ function generateHtmlResponse(status: string, message: string): Response {
         <div class="content">
           <div class="icon">${icon}</div>
           <p class="message">${message}</p>
-          <a href="https://vibelinkgh.com" class="button">Visit Our Website</a>
+          ${extraContent}
+          <a href="https://vibelinkgh.com" class="button${extraContent ? ' secondary' : ''}">Visit Our Website</a>
         </div>
         <div class="footer">
           <p>© ${new Date().getFullYear()} VibeLink Ghana. All rights reserved.</p>

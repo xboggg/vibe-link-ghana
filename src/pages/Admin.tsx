@@ -23,6 +23,8 @@ import {
   CheckCircle,
   XCircle,
   BarChart3,
+  RefreshCw,
+  Zap,
 } from "lucide-react";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 import { Button } from "@/components/ui/button";
@@ -93,6 +95,7 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
   const [adminTab, setAdminTab] = useState<"orders" | "analytics">("orders");
+  const [runningFollowUps, setRunningFollowUps] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -244,6 +247,33 @@ const Admin = () => {
     }
   };
 
+  const runFollowUpEmails = async () => {
+    setRunningFollowUps(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-follow-up-emails');
+
+      if (error) {
+        console.error("Error running follow-up emails:", error);
+        toast.error("Failed to run follow-up emails");
+      } else {
+        const totalSent = data?.totalSent || 0;
+        const totalErrors = data?.totalErrors || 0;
+        if (totalSent > 0) {
+          toast.success(`Sent ${totalSent} follow-up email${totalSent > 1 ? 's' : ''}`);
+        } else if (totalErrors > 0) {
+          toast.error(`${totalErrors} email${totalErrors > 1 ? 's' : ''} failed to send`);
+        } else {
+          toast.info("No follow-up emails needed at this time");
+        }
+      }
+    } catch (err) {
+      console.error("Error invoking follow-up function:", err);
+      toast.error("Failed to run follow-up emails");
+    } finally {
+      setRunningFollowUps(false);
+    }
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate("/admin/auth");
@@ -315,7 +345,7 @@ const Admin = () => {
 
       <main className="container mx-auto px-4 lg:px-8 py-8">
         {/* Admin Navigation Tabs */}
-        <div className="flex gap-2 mb-8">
+        <div className="flex flex-wrap gap-2 mb-8">
           <Button
             variant={adminTab === "orders" ? "default" : "outline"}
             onClick={() => setAdminTab("orders")}
@@ -329,6 +359,28 @@ const Admin = () => {
           >
             <BarChart3 className="h-4 w-4 mr-2" />
             Analytics
+          </Button>
+          <div className="flex-1" />
+          <Button
+            variant="outline"
+            onClick={runFollowUpEmails}
+            disabled={runningFollowUps}
+            className="gap-2"
+          >
+            {runningFollowUps ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Zap className="h-4 w-4" />
+            )}
+            Run Follow-up Emails
+          </Button>
+          <Button
+            variant="outline"
+            onClick={fetchOrders}
+            className="gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
           </Button>
         </div>
 

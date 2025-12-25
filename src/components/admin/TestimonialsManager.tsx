@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +33,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Star, Quote, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, Quote, GripVertical, Upload, X, ImageIcon, Loader2 } from "lucide-react";
 
 interface Testimonial {
   id: string;
@@ -75,6 +75,10 @@ export function TestimonialsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [formData, setFormData] = useState(emptyTestimonial);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchTestimonials();
@@ -97,6 +101,60 @@ export function TestimonialsManager() {
     }
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image must be less than 2MB");
+      return;
+    }
+
+    setImageFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return formData.image_url;
+
+    setUploadingImage(true);
+    try {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { data, error } = await supabase.storage
+        .from('testimonial-images')
+        .upload(fileName, imageFile);
+
+      if (error) throw error;
+
+      const { data: publicUrl } = supabase.storage
+        .from('testimonial-images')
+        .getPublicUrl(data.path);
+
+      return publicUrl.publicUrl;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast.error("Failed to upload image");
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -106,6 +164,9 @@ export function TestimonialsManager() {
     }
 
     try {
+      // Upload image if selected
+      const imageUrl = await uploadImage();
+
       if (editingTestimonial) {
         const { error } = await supabase
           .from("testimonials")
@@ -114,7 +175,7 @@ export function TestimonialsManager() {
             event_type: formData.event_type,
             quote: formData.quote,
             rating: formData.rating,
-            image_url: formData.image_url,
+            image_url: imageUrl,
             featured: formData.featured,
             display_order: formData.display_order,
           })
@@ -130,7 +191,7 @@ export function TestimonialsManager() {
             event_type: formData.event_type,
             quote: formData.quote,
             rating: formData.rating,
-            image_url: formData.image_url,
+            image_url: imageUrl,
             featured: formData.featured,
             display_order: testimonials.length + 1,
           });
@@ -142,6 +203,8 @@ export function TestimonialsManager() {
       setIsDialogOpen(false);
       setEditingTestimonial(null);
       setFormData(emptyTestimonial);
+      setImageFile(null);
+      setImagePreview(null);
       fetchTestimonials();
     } catch (error) {
       console.error("Error saving testimonial:", error);
@@ -160,6 +223,8 @@ export function TestimonialsManager() {
       featured: testimonial.featured,
       display_order: testimonial.display_order,
     });
+    setImagePreview(testimonial.image_url);
+    setImageFile(null);
     setIsDialogOpen(true);
   };
 
@@ -198,7 +263,18 @@ export function TestimonialsManager() {
   const openNewDialog = () => {
     setEditingTestimonial(null);
     setFormData(emptyTestimonial);
+    setImageFile(null);
+    setImagePreview(null);
     setIsDialogOpen(true);
+  };
+
+  const clearImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setFormData({ ...formData, image_url: null });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   if (loading) {
@@ -223,7 +299,7 @@ export function TestimonialsManager() {
               Add Testimonial
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingTestimonial ? "Edit Testimonial" : "Add New Testimonial"}
@@ -292,14 +368,56 @@ export function TestimonialsManager() {
                 </div>
               </div>
 
+              {/* Image Upload Section */}
               <div className="space-y-2">
-                <Label htmlFor="image_url">Image URL (optional)</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url || ""}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value || null })}
-                  placeholder="https://example.com/image.jpg"
-                />
+                <Label>Client Photo</Label>
+                <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    id="testimonial-image"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+                  
+                  {imagePreview ? (
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-40 object-cover rounded-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 h-8 w-8"
+                        onClick={clearImage}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <label
+                      htmlFor="testimonial-image"
+                      className="flex flex-col items-center gap-2 cursor-pointer py-6 border-2 border-dashed border-border rounded-lg hover:border-primary transition-colors"
+                    >
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">Click to upload photo</span>
+                    </label>
+                  )}
+
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p className="flex items-center gap-1">
+                      <ImageIcon className="h-3 w-3" />
+                      <strong>Recommended:</strong> 400x400px square, JPG/PNG/WebP
+                    </p>
+                    <p>• Maximum file size: 2MB</p>
+                    <p>• Use high-quality photos of real Ghanaian clients</p>
+                    <p>• Photos will display as circular thumbnails on the homepage</p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
@@ -315,8 +433,15 @@ export function TestimonialsManager() {
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit">
-                  {editingTestimonial ? "Update" : "Create"} Testimonial
+                <Button type="submit" disabled={uploadingImage}>
+                  {uploadingImage ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>{editingTestimonial ? "Update" : "Create"} Testimonial</>
+                  )}
                 </Button>
               </div>
             </form>
@@ -344,6 +469,17 @@ export function TestimonialsManager() {
                   <div className="flex-shrink-0 cursor-grab">
                     <GripVertical className="h-5 w-5 text-muted-foreground" />
                   </div>
+                  
+                  {/* Thumbnail preview */}
+                  {testimonial.image_url && (
+                    <div className="flex-shrink-0">
+                      <img
+                        src={testimonial.image_url}
+                        alt={testimonial.name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    </div>
+                  )}
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">

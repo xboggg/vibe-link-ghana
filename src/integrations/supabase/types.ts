@@ -339,6 +339,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_logs: {
+        Row: {
+          client_ip: string
+          created_at: string
+          function_name: string
+          id: string
+        }
+        Insert: {
+          client_ip: string
+          created_at?: string
+          function_name: string
+          id?: string
+        }
+        Update: {
+          client_ip?: string
+          created_at?: string
+          function_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -392,6 +413,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          p_client_ip: string
+          p_function_name: string
+          p_max_requests: number
+          p_window_minutes: number
+        }
+        Returns: boolean
+      }
+      cleanup_rate_limit_logs: { Args: never; Returns: undefined }
       get_order_by_id:
         | {
             Args: { order_id: string }

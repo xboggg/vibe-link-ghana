@@ -110,9 +110,10 @@ const handler = async (req: Request): Promise<Response> => {
 
       for (const subscriber of subscribers) {
         try {
-          // Generate unsubscribe token and URL
-          const unsubscribeToken = btoa(subscriber.email).replace(/=/g, "");
-          const unsubscribeUrl = `${baseUrl}/functions/v1/unsubscribe-newsletter?email=${encodeURIComponent(subscriber.email)}&token=${unsubscribeToken}`;
+          // Generate tokens and URLs
+          const subscriberToken = btoa(subscriber.email).replace(/=/g, "");
+          const unsubscribeUrl = `${baseUrl}/functions/v1/unsubscribe-newsletter?email=${encodeURIComponent(subscriber.email)}&token=${subscriberToken}`;
+          const preferencesUrl = `${baseUrl}/functions/v1/newsletter-preferences?email=${encodeURIComponent(subscriber.email)}&token=${subscriberToken}`;
 
           let emailHtml = `
             <!DOCTYPE html>
@@ -143,7 +144,9 @@ const handler = async (req: Request): Promise<Response> => {
                   <p style="margin: 0;">© ${new Date().getFullYear()} VibeLink Ghana. All rights reserved.</p>
                   <p style="margin: 8px 0 0 0;">Accra, Ghana | <a href="mailto:info@vibelinkgh.com" style="color: #7C3AED;">info@vibelinkgh.com</a></p>
                   <p style="margin: 12px 0 0 0;">
-                    <a href="${unsubscribeUrl}" style="color: #94a3b8; text-decoration: underline;">Unsubscribe from this newsletter</a>
+                    <a href="${preferencesUrl}" style="color: #94a3b8; text-decoration: underline;">Manage preferences</a>
+                    &nbsp;|&nbsp;
+                    <a href="${unsubscribeUrl}" style="color: #94a3b8; text-decoration: underline;">Unsubscribe</a>
                   </p>
                 </div>
               </div>

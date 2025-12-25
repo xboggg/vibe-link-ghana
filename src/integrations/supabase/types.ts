@@ -199,24 +199,33 @@ export type Database = {
       newsletter_subscribers: {
         Row: {
           email: string
+          frequency: string
           id: string
           is_active: boolean
+          preferences_token: string | null
           source: string | null
           subscribed_at: string
+          topics: string[]
         }
         Insert: {
           email: string
+          frequency?: string
           id?: string
           is_active?: boolean
+          preferences_token?: string | null
           source?: string | null
           subscribed_at?: string
+          topics?: string[]
         }
         Update: {
           email?: string
+          frequency?: string
           id?: string
           is_active?: boolean
+          preferences_token?: string | null
           source?: string | null
           subscribed_at?: string
+          topics?: string[]
         }
         Relationships: []
       }

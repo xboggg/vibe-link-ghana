@@ -180,6 +180,36 @@ ${formData.designNotes ? `🎯 *Design Notes:* ${formData.designNotes}` : ""}`;
     window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, "_blank");
   };
 
+  const sendOrderConfirmationEmail = async (
+    orderId: string,
+    total: number,
+    selectedPkg: typeof packages[0] | undefined,
+    selectedAddOnsList: { id: string; name: string; price: number }[]
+  ) => {
+    try {
+      const { error } = await supabase.functions.invoke("send-order-confirmation", {
+        body: {
+          orderId,
+          clientName: formData.fullName,
+          clientEmail: formData.email,
+          eventType: formData.eventType,
+          eventTitle: formData.eventTitle,
+          eventDate: formData.eventDate ? formData.eventDate.toISOString().split("T")[0] : null,
+          packageName: selectedPkg?.name || "",
+          packagePrice: selectedPkg?.price || 0,
+          totalPrice: total,
+          addOns: selectedAddOnsList.map(a => ({ name: a.name, price: a.price })),
+        },
+      });
+
+      if (error) {
+        console.error("Error sending confirmation email:", error);
+      }
+    } catch (error) {
+      console.error("Failed to send confirmation email:", error);
+    }
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     
@@ -188,7 +218,7 @@ ${formData.designNotes ? `🎯 *Design Notes:* ${formData.designNotes}` : ""}`;
       const selectedAddOnsList = formData.selectedAddOns.map((addonId) => {
         const addon = addOns.find((a) => a.id === addonId);
         return addon ? { id: addon.id, name: addon.name, price: addon.price } : null;
-      }).filter(Boolean);
+      }).filter(Boolean) as { id: string; name: string; price: number }[];
       
       const total = calculateTotal();
       
@@ -229,8 +259,9 @@ ${formData.designNotes ? `🎯 *Design Notes:* ${formData.designNotes}` : ""}`;
         throw error;
       }
       
-      // Send WhatsApp notification with order details
+      // Send confirmation email and WhatsApp notification
       if (data?.id) {
+        sendOrderConfirmationEmail(data.id, total, selectedPkg, selectedAddOnsList);
         sendWhatsAppNotification(data.id, total);
       }
       

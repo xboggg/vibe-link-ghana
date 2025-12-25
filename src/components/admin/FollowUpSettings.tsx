@@ -4,12 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Save, RefreshCw, Mail, Clock, FileText } from 'lucide-react';
+import { Save, RefreshCw, Mail, Clock, FileText, Eye, EyeOff } from 'lucide-react';
+import { RichTextEditor } from './RichTextEditor';
 
 interface FollowUpSetting {
   id: string;
@@ -58,6 +58,7 @@ export function FollowUpSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [editedSettings, setEditedSettings] = useState<Record<string, Partial<FollowUpSetting>>>({});
+  const [showPreview, setShowPreview] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchSettings();
@@ -280,39 +281,64 @@ export function FollowUpSettings() {
                     />
                   </div>
 
-                  {/* Template */}
+                  {/* Template with Rich Text Editor */}
                   <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      Email Template (HTML)
-                    </Label>
-                    <Textarea
-                      value={getCurrentValue(setting, 'email_template') as string}
-                      onChange={(e) => handleChange(setting.id, 'email_template', e.target.value)}
-                      placeholder="Enter HTML email template..."
-                      className="min-h-[200px] font-mono text-sm"
-                    />
+                    <div className="flex items-center justify-between">
+                      <Label className="flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Email Template
+                      </Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowPreview(prev => ({ ...prev, [setting.id]: !prev[setting.id] }))}
+                        className="gap-2"
+                      >
+                        {showPreview[setting.id] ? (
+                          <>
+                            <EyeOff className="h-4 w-4" />
+                            Hide Preview
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="h-4 w-4" />
+                            Show Preview
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    
+                    <div className="border rounded-lg overflow-hidden">
+                      <RichTextEditor
+                        content={getCurrentValue(setting, 'email_template') as string}
+                        onChange={(value) => handleChange(setting.id, 'email_template', value)}
+                      />
+                    </div>
+                    
                     <p className="text-xs text-muted-foreground">
-                      Use template variables like {'{{client_name}}'} to personalize emails
+                      Use template variables like {"{{client_name}}"} to personalize emails. Available: {"{{client_name}}"}, {"{{order_id}}"}, {"{{event_title}}"}, {"{{total_price}}"}, {"{{event_date}}"}, {"{{package_name}}"}
                     </p>
                   </div>
 
-                  {/* Preview */}
-                  <div className="space-y-2">
-                    <Label>Email Preview</Label>
-                    <div 
-                      className="border rounded-lg p-4 bg-background prose prose-sm max-w-none dark:prose-invert"
-                      dangerouslySetInnerHTML={{ 
-                        __html: (getCurrentValue(setting, 'email_template') as string)
-                          .replace(/\{\{client_name\}\}/g, 'John Doe')
-                          .replace(/\{\{order_id\}\}/g, 'ABC123')
-                          .replace(/\{\{event_title\}\}/g, 'Wedding Celebration')
-                          .replace(/\{\{total_price\}\}/g, '150,000')
-                          .replace(/\{\{event_date\}\}/g, 'March 15, 2025')
-                          .replace(/\{\{package_name\}\}/g, 'Premium Package')
-                      }}
-                    />
-                  </div>
+                  {/* Preview (toggleable) */}
+                  {showPreview[setting.id] && (
+                    <div className="space-y-2">
+                      <Label>Email Preview</Label>
+                      <div 
+                        className="border rounded-lg p-4 bg-background prose prose-sm max-w-none dark:prose-invert"
+                        dangerouslySetInnerHTML={{ 
+                          __html: (getCurrentValue(setting, 'email_template') as string)
+                            .replace(/\{\{client_name\}\}/g, 'John Doe')
+                            .replace(/\{\{order_id\}\}/g, 'ABC123')
+                            .replace(/\{\{event_title\}\}/g, 'Wedding Celebration')
+                            .replace(/\{\{total_price\}\}/g, '150,000')
+                            .replace(/\{\{event_date\}\}/g, 'March 15, 2025')
+                            .replace(/\{\{package_name\}\}/g, 'Premium Package')
+                        }}
+                      />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

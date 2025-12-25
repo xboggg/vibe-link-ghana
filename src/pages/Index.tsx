@@ -6,7 +6,15 @@ import { PortfolioPreviewSection } from "@/components/sections/PortfolioPreviewS
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 import { HowItWorksPreviewSection } from "@/components/sections/HowItWorksPreviewSection";
 import { CTASection } from "@/components/sections/CTASection";
-import SEO from "@/components/SEO";
+import SEO, { createServiceSchema } from "@/components/SEO";
+
+const homePageServices = [
+  { name: "Wedding Invitations", description: "Beautiful digital invitations for traditional and white weddings in Ghana" },
+  { name: "Funeral Programs", description: "Dignified memorial pages that honor your loved ones with respect" },
+  { name: "Naming Ceremonies", description: "Celebrate the arrival of new life with joyful digital invitations" },
+  { name: "Graduation Celebrations", description: "Share academic achievements with family and friends" },
+  { name: "Corporate Events", description: "Professional digital invitations for conferences and corporate events" },
+];
 
 const Index = () => {
   return (
@@ -15,6 +23,7 @@ const Index = () => {
         title="VibeLink Ghana | Digital Event Invitations for Weddings, Funerals & More"
         description="Ghana's premier digital invitation service. Create stunning interactive invitations for weddings, funerals, naming ceremonies, graduations & corporate events. Share via WhatsApp!"
         canonical="/"
+        jsonLd={createServiceSchema(homePageServices)}
       />
       <HeroSection />
       <FeaturesSection />

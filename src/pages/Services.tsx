@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { CTASection } from "@/components/sections/CTASection";
-import SEO from "@/components/SEO";
+import SEO, { createServiceSchema, createBreadcrumbSchema } from "@/components/SEO";
 import {
   Heart,
   Users,
@@ -159,6 +159,15 @@ const addOns = [
   { name: "RSVP Tracking", price: "GHS 100" },
 ];
 
+const servicesSchema = createServiceSchema(
+  services.map((s) => ({ name: s.title, description: s.description }))
+);
+
+const breadcrumbSchema = createBreadcrumbSchema([
+  { name: "Home", url: "/" },
+  { name: "Services", url: "/services" },
+]);
+
 const Services = () => {
   return (
     <Layout>
@@ -167,6 +176,7 @@ const Services = () => {
         description="Digital invitations for weddings, funerals, naming ceremonies, anniversaries, graduations & corporate events in Ghana. Beautiful designs, easy sharing via WhatsApp."
         keywords="wedding invitations Ghana, funeral programs Accra, naming ceremony invitations, digital event invitations"
         canonical="/services"
+        jsonLd={[servicesSchema, breadcrumbSchema]}
       />
       {/* Hero */}
       <section className="pt-24 lg:pt-32 pb-16 bg-gradient-to-b from-[#6B46C1] via-[#553C9A] to-[#44337A]">

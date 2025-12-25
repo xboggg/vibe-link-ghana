@@ -4,7 +4,12 @@ import { Layout } from "@/components/layout/Layout";
 import { Heart, Globe, Sparkles, Shield, Users, MessageCircle as MessageCircleIcon, Instagram, Facebook, Twitter, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
-import SEO from "@/components/SEO";
+import SEO, { createBreadcrumbSchema } from "@/components/SEO";
+
+const aboutBreadcrumb = createBreadcrumbSchema([
+  { name: "Home", url: "/" },
+  { name: "About Us", url: "/about" },
+]);
 
 const TikTokIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -76,6 +81,7 @@ const About = () => {
         description="Learn about VibeLink Ghana - Ghana's premier digital invitation service. Our mission is to transform traditional invitations into beautiful digital experiences."
         keywords="VibeLink Ghana, digital invitations company, Ghana event services, about VibeLink"
         canonical="/about"
+        jsonLd={aboutBreadcrumb}
       />
       {/* Hero - Purple Gradient */}
       <section className="pt-24 lg:pt-32 pb-16 bg-gradient-to-b from-[#6B46C1] via-[#553C9A] to-[#44337A]">

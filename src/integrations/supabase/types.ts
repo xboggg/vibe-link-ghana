@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      follow_up_logs: {
+        Row: {
+          error_message: string | null
+          follow_up_type: string
+          id: string
+          order_id: string
+          sent_at: string
+          success: boolean
+        }
+        Insert: {
+          error_message?: string | null
+          follow_up_type: string
+          id?: string
+          order_id: string
+          sent_at?: string
+          success?: boolean
+        }
+        Update: {
+          error_message?: string | null
+          follow_up_type?: string
+          id?: string
+          order_id?: string
+          sent_at?: string
+          success?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           add_ons: Json | null

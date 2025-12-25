@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout/Layout";
 import { OrderFormWizard } from "@/components/order-form/OrderFormWizard";
 import { OrderFormData } from "@/data/orderFormData";
 import { toast } from "sonner";
+import SEO from "@/components/SEO";
 
 const GetStarted = () => {
   const navigate = useNavigate();
@@ -19,6 +20,12 @@ const GetStarted = () => {
 
   return (
     <Layout>
+      <SEO 
+        title="Get Started"
+        description="Create your digital invitation today. Fill out our simple order form and get your stunning event invitation within 24-48 hours."
+        keywords="order digital invitation Ghana, create wedding invitation, event invitation order"
+        canonical="/get-started"
+      />
       {/* Hero */}
       <section className="pt-24 lg:pt-32 pb-12 bg-gradient-to-b from-[#6B46C1] via-[#553C9A] to-[#44337A]">
         <div className="container mx-auto px-4 lg:px-8">

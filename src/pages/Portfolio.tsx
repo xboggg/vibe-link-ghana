@@ -5,6 +5,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { CTASection } from "@/components/sections/CTASection";
 import { ExternalLink } from "lucide-react";
+import SEO from "@/components/SEO";
 
 const categories = ["All", "Weddings", "Funerals", "Naming", "Anniversaries", "Other"];
 
@@ -141,6 +142,12 @@ const Portfolio = () => {
 
   return (
     <Layout>
+      <SEO 
+        title="Portfolio"
+        description="Browse our portfolio of stunning digital invitations for weddings, funerals, naming ceremonies & more. See real examples of our work for Ghanaian events."
+        keywords="digital invitation examples Ghana, wedding invitation samples, funeral program examples"
+        canonical="/portfolio"
+      />
       {/* Hero */}
       <section className="pt-24 lg:pt-32 pb-16 bg-gradient-to-b from-[#6B46C1] via-[#553C9A] to-[#44337A]">
         <div className="container mx-auto px-4 lg:px-8">

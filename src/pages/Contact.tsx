@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import SEO from "@/components/SEO";
 import {
   Accordion,
   AccordionContent,
@@ -144,6 +145,12 @@ ${formData.message.trim()}`;
 
   return (
     <Layout>
+      <SEO 
+        title="Contact Us"
+        description="Get in touch with VibeLink Ghana. Reach us via WhatsApp for quick responses or send us an email. We're here to help with your digital invitation needs."
+        keywords="contact VibeLink Ghana, digital invitations help, WhatsApp support Ghana"
+        canonical="/contact"
+      />
       {/* Hero */}
       <section className="pt-24 lg:pt-32 pb-16 bg-gradient-to-b from-[#6B46C1] via-[#553C9A] to-[#44337A]">
         <div className="container mx-auto px-4 lg:px-8">

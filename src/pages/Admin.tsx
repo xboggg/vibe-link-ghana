@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 import { FollowUpHistory } from "@/components/admin/FollowUpHistory";
+import { FollowUpSettings } from "@/components/admin/FollowUpSettings";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -95,7 +96,7 @@ const Admin = () => {
   const [loadingReminders, setLoadingReminders] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
-  const [adminTab, setAdminTab] = useState<"orders" | "analytics" | "follow-ups">("orders");
+  const [adminTab, setAdminTab] = useState<"orders" | "analytics" | "follow-ups" | "settings">("orders");
   const [runningFollowUps, setRunningFollowUps] = useState(false);
 
   useEffect(() => {
@@ -368,6 +369,13 @@ const Admin = () => {
             <Mail className="h-4 w-4 mr-2" />
             Follow-up History
           </Button>
+          <Button
+            variant={adminTab === "settings" ? "default" : "outline"}
+            onClick={() => setAdminTab("settings")}
+          >
+            <Clock className="h-4 w-4 mr-2" />
+            Email Settings
+          </Button>
           <div className="flex-1" />
           <Button
             variant="outline"
@@ -396,6 +404,8 @@ const Admin = () => {
           <AnalyticsDashboard />
         ) : adminTab === "follow-ups" ? (
           <FollowUpHistory />
+        ) : adminTab === "settings" ? (
+          <FollowUpSettings />
         ) : (
           <>
             {/* Stats Cards */}

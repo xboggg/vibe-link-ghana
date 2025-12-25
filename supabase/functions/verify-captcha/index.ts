@@ -17,7 +17,7 @@ serve(async (req) => {
   }
 
   try {
-    const { token, action = "SUBMIT_ORDER" }: VerifyCaptchaRequest = await req.json();
+    const { token, action = "submit_order" }: VerifyCaptchaRequest = await req.json();
 
     if (!token) {
       console.error("No captcha token provided");
@@ -27,68 +27,63 @@ serve(async (req) => {
       );
     }
 
-    const siteKey = Deno.env.get("RECAPTCHA_SITE_KEY");
-    const apiKey = Deno.env.get("RECAPTCHA_API_KEY");
-    const projectId = Deno.env.get("RECAPTCHA_PROJECT_ID");
+    const secretKey = Deno.env.get("RECAPTCHA_SECRET_KEY");
 
-    if (!siteKey || !apiKey || !projectId) {
-      console.error("reCAPTCHA Enterprise configuration missing");
+    if (!secretKey) {
+      console.error("reCAPTCHA secret key not configured");
       return new Response(
         JSON.stringify({ success: false, error: "Server configuration error" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Verifying reCAPTCHA Enterprise token for action:", action);
+    console.log("Verifying reCAPTCHA v3 token for action:", action);
 
-    // Verify with Google reCAPTCHA Enterprise API
+    // Verify with Google reCAPTCHA v3 API
     const verifyResponse = await fetch(
-      `https://recaptchaenterprise.googleapis.com/v1/projects/${projectId}/assessments?key=${apiKey}`,
+      "https://www.google.com/recaptcha/api/siteverify",
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          event: {
-            token: token,
-            siteKey: siteKey,
-            expectedAction: action,
-          },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          secret: secretKey,
+          response: token,
         }),
       }
     );
 
     const verifyResult = await verifyResponse.json();
-    console.log("reCAPTCHA Enterprise assessment result:", JSON.stringify(verifyResult));
+    console.log("reCAPTCHA verification result:", JSON.stringify(verifyResult));
 
-    // Check if token is valid
-    if (!verifyResult.tokenProperties?.valid) {
-      console.error("Invalid token:", verifyResult.tokenProperties?.invalidReason);
+    // Check if verification was successful
+    if (!verifyResult.success) {
+      console.error("Verification failed:", verifyResult["error-codes"]);
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: "Invalid captcha token",
-          reason: verifyResult.tokenProperties?.invalidReason 
+          error: "Captcha verification failed",
+          codes: verifyResult["error-codes"]
         }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Check if action matches
-    if (verifyResult.tokenProperties?.action !== action) {
-      console.error("Action mismatch:", verifyResult.tokenProperties?.action, "vs", action);
+    // Check if action matches (reCAPTCHA v3)
+    if (verifyResult.action && verifyResult.action !== action) {
+      console.error("Action mismatch:", verifyResult.action, "vs", action);
       return new Response(
         JSON.stringify({ success: false, error: "Action mismatch" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Check risk score (0.0 = bot, 1.0 = human)
-    const riskScore = verifyResult.riskAnalysis?.score ?? 0;
-    console.log("Risk score:", riskScore);
+    // Check score (0.0 = bot, 1.0 = human)
+    const score = verifyResult.score ?? 0;
+    console.log("reCAPTCHA score:", score);
 
     // Accept scores above 0.5 (adjust threshold as needed)
-    if (riskScore < 0.5) {
-      console.error("Low risk score, likely bot:", riskScore);
+    if (score < 0.5) {
+      console.error("Low score, likely bot:", score);
       return new Response(
         JSON.stringify({ success: false, error: "Suspicious activity detected" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -96,7 +91,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, score: riskScore }),
+      JSON.stringify({ success: true, score }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

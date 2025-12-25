@@ -49,6 +49,39 @@ export type Database = {
           },
         ]
       }
+      follow_up_settings: {
+        Row: {
+          created_at: string
+          days_after: number
+          email_subject: string
+          email_template: string
+          enabled: boolean
+          follow_up_type: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          days_after?: number
+          email_subject: string
+          email_template: string
+          enabled?: boolean
+          follow_up_type: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          days_after?: number
+          email_subject?: string
+          email_template?: string
+          enabled?: boolean
+          follow_up_type?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           add_ons: Json | null

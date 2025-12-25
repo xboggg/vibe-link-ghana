@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { OrderFormData, colorPalettes, stylePreferences } from "@/data/orderFormData";
-import { ArrowLeft, ArrowRight, Palette, Sparkles, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Palette, Sparkles, Check, Upload, X, Image } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { styleColorsSchema } from "@/lib/validationSchemas";
 
 interface StyleColorsStepProps {
   formData: OrderFormData;
@@ -22,6 +25,33 @@ export const StyleColorsStep = ({
 }: StyleColorsStepProps) => {
   const [customColor1, setCustomColor1] = useState(formData.customColors[0] || "#6B46C1");
   const [customColor2, setCustomColor2] = useState(formData.customColors[1] || "#D4AF37");
+  const [uploading, setUploading] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateAndProceed = () => {
+    const result = styleColorsSchema.safeParse({
+      colorPalette: formData.colorPalette,
+      stylePreference: formData.stylePreference,
+      customColors: formData.customColors,
+      designNotes: formData.designNotes,
+    });
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setErrors({});
+    onNext();
+  };
 
   const isValid = formData.colorPalette && formData.stylePreference;
 
@@ -30,6 +60,7 @@ export const StyleColorsStep = ({
     if (paletteId === "custom") {
       updateFormData({ customColors: [customColor1, customColor2] });
     }
+    setErrors((prev) => ({ ...prev, colorPalette: "" }));
   };
 
   const handleCustomColorChange = (index: number, color: string) => {
@@ -39,6 +70,72 @@ export const StyleColorsStep = ({
       setCustomColor2(color);
     }
     updateFormData({ customColors: index === 0 ? [color, customColor2] : [customColor1, color] });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    const newUrls: string[] = [];
+
+    try {
+      for (let i = 0; i < Math.min(files.length, 5 - uploadedImages.length); i++) {
+        const file = files[i];
+        
+        // Validate file type
+        if (!file.type.startsWith("image/")) {
+          toast.error(`${file.name} is not an image file`);
+          continue;
+        }
+
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`${file.name} is too large. Maximum size is 5MB`);
+          continue;
+        }
+
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        const { error: uploadError, data } = await supabase.storage
+          .from("reference-images")
+          .upload(fileName, file);
+
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          toast.error(`Failed to upload ${file.name}`);
+          continue;
+        }
+
+        const { data: urlData } = supabase.storage
+          .from("reference-images")
+          .getPublicUrl(fileName);
+
+        newUrls.push(urlData.publicUrl);
+      }
+
+      if (newUrls.length > 0) {
+        const allUrls = [...uploadedImages, ...newUrls];
+        setUploadedImages(allUrls);
+        updateFormData({ referenceImages: allUrls as any });
+        toast.success(`${newUrls.length} image(s) uploaded successfully`);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Failed to upload images");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    const newImages = uploadedImages.filter((_, i) => i !== indexToRemove);
+    setUploadedImages(newImages);
+    updateFormData({ referenceImages: newImages as any });
   };
 
   return (
@@ -58,6 +155,9 @@ export const StyleColorsStep = ({
           <Palette className="h-5 w-5 text-primary" />
           Choose a Color Palette
         </Label>
+        {errors.colorPalette && (
+          <p className="text-sm text-destructive">{errors.colorPalette}</p>
+        )}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {colorPalettes.map((palette) => {
             const isSelected = formData.colorPalette === palette.id;
@@ -151,6 +251,9 @@ export const StyleColorsStep = ({
           <Sparkles className="h-5 w-5 text-primary" />
           Choose a Design Style
         </Label>
+        {errors.stylePreference && (
+          <p className="text-sm text-destructive">{errors.stylePreference}</p>
+        )}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {stylePreferences.map((style) => {
             const isSelected = formData.stylePreference === style.id;
@@ -160,7 +263,10 @@ export const StyleColorsStep = ({
                 key={style.id}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => updateFormData({ stylePreference: style.id })}
+                onClick={() => {
+                  updateFormData({ stylePreference: style.id });
+                  setErrors((prev) => ({ ...prev, stylePreference: "" }));
+                }}
                 className={cn(
                   "relative p-4 rounded-xl border-2 transition-all text-center",
                   isSelected
@@ -185,6 +291,57 @@ export const StyleColorsStep = ({
         </div>
       </div>
 
+      {/* Reference Images Upload */}
+      <div className="space-y-4">
+        <Label className="flex items-center gap-2 text-base">
+          <Image className="h-5 w-5 text-primary" />
+          Reference Images (optional)
+        </Label>
+        <p className="text-sm text-muted-foreground">
+          Upload up to 5 reference images to help us understand your vision (Pinterest, Instagram screenshots, etc.)
+        </p>
+        
+        <div className="flex flex-wrap gap-3">
+          {uploadedImages.map((url, index) => (
+            <div key={index} className="relative group">
+              <img
+                src={url}
+                alt={`Reference ${index + 1}`}
+                className="w-24 h-24 object-cover rounded-lg border border-border"
+              />
+              <button
+                onClick={() => removeImage(index)}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+          
+          {uploadedImages.length < 5 && (
+            <label className="w-24 h-24 rounded-lg border-2 border-dashed border-border hover:border-primary/50 flex flex-col items-center justify-center cursor-pointer transition-colors bg-muted/30">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileUpload}
+                className="hidden"
+                disabled={uploading}
+              />
+              {uploading ? (
+                <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
+              ) : (
+                <>
+                  <Upload className="w-6 h-6 text-muted-foreground mb-1" />
+                  <span className="text-xs text-muted-foreground">Upload</span>
+                </>
+              )}
+            </label>
+          )}
+        </div>
+      </div>
+
       {/* Design Notes */}
       <div className="space-y-2">
         <Label htmlFor="designNotes">Additional Design Notes (optional)</Label>
@@ -194,6 +351,7 @@ export const StyleColorsStep = ({
           value={formData.designNotes}
           onChange={(e) => updateFormData({ designNotes: e.target.value })}
           rows={3}
+          maxLength={1000}
         />
         <p className="text-xs text-muted-foreground">
           You can share Pinterest boards or Instagram references via WhatsApp after placing your order.
@@ -205,7 +363,7 @@ export const StyleColorsStep = ({
           <ArrowLeft className="h-4 w-4" />
           Back
         </Button>
-        <Button onClick={onNext} disabled={!isValid} size="lg" className="gap-2">
+        <Button onClick={validateAndProceed} disabled={!isValid} size="lg" className="gap-2">
           Continue
           <ArrowRight className="h-4 w-4" />
         </Button>

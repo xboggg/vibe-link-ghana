@@ -22,7 +22,9 @@ import {
   Bell,
   CheckCircle,
   XCircle,
+  BarChart3,
 } from "lucide-react";
+import { AnalyticsDashboard } from "@/components/admin/AnalyticsDashboard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -90,6 +92,7 @@ const Admin = () => {
   const [loadingReminders, setLoadingReminders] = useState(false);
   const [activeTab, setActiveTab] = useState("all");
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
+  const [adminTab, setAdminTab] = useState<"orders" | "analytics">("orders");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -311,53 +314,75 @@ const Admin = () => {
       </header>
 
       <main className="container mx-auto px-4 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Orders
-              </CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalOrders}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Pending Orders
-              </CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{pendingOrders}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Revenue
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">GHS {totalRevenue.toLocaleString()}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Deposits Received
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">GHS {depositReceived.toLocaleString()}</div>
-            </CardContent>
-          </Card>
+        {/* Admin Navigation Tabs */}
+        <div className="flex gap-2 mb-8">
+          <Button
+            variant={adminTab === "orders" ? "default" : "outline"}
+            onClick={() => setAdminTab("orders")}
+          >
+            <Package className="h-4 w-4 mr-2" />
+            Orders
+          </Button>
+          <Button
+            variant={adminTab === "analytics" ? "default" : "outline"}
+            onClick={() => setAdminTab("analytics")}
+          >
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Analytics
+          </Button>
         </div>
+
+        {adminTab === "analytics" ? (
+          <AnalyticsDashboard />
+        ) : (
+          <>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Total Orders
+                  </CardTitle>
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalOrders}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Pending Orders
+                  </CardTitle>
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{pendingOrders}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Total Revenue
+                  </CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">GHS {totalRevenue.toLocaleString()}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Deposits Received
+                  </CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">GHS {depositReceived.toLocaleString()}</div>
+                </CardContent>
+              </Card>
+            </div>
 
         {/* View Toggle and Orders */}
         <Card>
@@ -528,6 +553,8 @@ const Admin = () => {
             )}
           </CardContent>
         </Card>
+          </>
+        )}
       </main>
 
       {/* Order Detail Dialog */}

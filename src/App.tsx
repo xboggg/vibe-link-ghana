@@ -25,6 +25,7 @@ import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
 import CookiePolicy from "./pages/CookiePolicy";
 import TrackOrder from "./pages/TrackOrder";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <PageTracker>
             <Routes>
               <Route path="/" element={<Index />} />

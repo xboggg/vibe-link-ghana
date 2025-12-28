@@ -52,43 +52,6 @@ const pricingSchema = {
   ],
 };
 
-// FAQ Schema for rich snippets
-const pricingFAQs = [
-  {
-    question: "What is included in VibeLink digital invitations?",
-    answer: "All packages include mobile-responsive design, countdown timer, Google Maps directions, and WhatsApp sharing. Higher packages add features like photo galleries, RSVP tracking, background music, and MoMo collection.",
-  },
-  {
-    question: "How long does it take to create my digital invitation?",
-    answer: "Standard delivery is 5-7 business days. We offer rush delivery (48 hours) for an additional GHS 300.",
-  },
-  {
-    question: "Can I make changes after my invitation is created?",
-    answer: "Yes! Starter package includes 1 revision round, Classic includes 2 rounds, and Prestige/Royal packages include unlimited revisions.",
-  },
-  {
-    question: "How long will my invitation stay online?",
-    answer: "Hosting duration varies by package: Starter (30 days), Classic (90 days), Prestige (1 year), and Royal (2 years). Extended hosting is available as an add-on.",
-  },
-  {
-    question: "Can guests abroad access my digital invitation?",
-    answer: "Absolutely! Your digital invitation works anywhere in the world. Guests can view it on any device with internet access and contribute via mobile money or international transfers.",
-  },
-];
-
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: pricingFAQs.map((faq) => ({
-    "@type": "Question",
-    name: faq.question,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: faq.answer,
-    },
-  })),
-};
-
 const packages = [
   {
     name: "Starter Vibe",
@@ -171,34 +134,8 @@ const packages = [
   },
 ];
 
-// Comparison table data
-const comparisonFeatures = [
-  { feature: "Hero Banner Images", starter: "1", classic: "2", prestige: "3", royal: "5" },
-  { feature: "Custom Color Scheme", starter: false, classic: true, prestige: true, royal: true },
-  { feature: "Photo Gallery", starter: false, classic: "10 photos", prestige: "Unlimited", royal: "Unlimited" },
-  { feature: "Background Music", starter: false, classic: true, prestige: true, royal: true },
-  { feature: "RSVP Tracking", starter: false, classic: true, prestige: true, royal: true },
-  { feature: "Countdown Timer", starter: true, classic: true, prestige: true, royal: true },
-  { feature: "Google Maps", starter: true, classic: true, prestige: true, royal: true },
-  { feature: "Add to Calendar", starter: false, classic: true, prestige: true, royal: true },
-  { feature: "Contact Cards", starter: false, classic: true, prestige: true, royal: true },
-  { feature: "Video Integration", starter: false, classic: false, prestige: true, royal: true },
-  { feature: "MoMo Collection", starter: false, classic: false, prestige: true, royal: true },
-  { feature: "Guest Messaging Wall", starter: false, classic: false, prestige: true, royal: true },
-  { feature: "Post-event Memorial", starter: false, classic: false, prestige: true, royal: true },
-  { feature: "Guest Analytics", starter: false, classic: false, prestige: true, royal: true },
-  { feature: "Custom Domain", starter: false, classic: false, prestige: true, royal: true },
-  { feature: "Multiple Event Pages", starter: false, classic: false, prestige: false, royal: true },
-  { feature: "White-label", starter: false, classic: false, prestige: false, royal: true },
-  { feature: "Advanced Animations", starter: false, classic: false, prestige: false, royal: true },
-  { feature: "Hosting Duration", starter: "30 days", classic: "90 days", prestige: "1 year", royal: "2 years" },
-  { feature: "Revision Rounds", starter: "1", classic: "2", prestige: "Unlimited", royal: "Unlimited" },
-  { feature: "Priority Support", starter: false, classic: false, prestige: true, royal: true },
-  { feature: "Dedicated Manager", starter: false, classic: false, prestige: false, royal: true },
-];
-
+// Add-ons list (Rush Delivery removed as requested)
 const addOns = [
-  { name: "Rush Delivery (48 hours)", price: "GHS 300" },
   { name: "Extra Revision Round", price: "GHS 100" },
   { name: "Extended Hosting (6 months)", price: "GHS 150" },
   { name: "Extended Hosting (1 year)", price: "GHS 300" },
@@ -219,6 +156,22 @@ const addOns = [
   { name: "RSVP Tracking", price: "GHS 100" },
 ];
 
+const comparisonFeatures = [
+  { feature: "Hero Banner Images", starter: "1", classic: "2", prestige: "3", royal: "5" },
+  { feature: "Custom Color Scheme", starter: false, classic: true, prestige: true, royal: true },
+  { feature: "Photo Gallery", starter: false, classic: "10 photos", prestige: "Unlimited", royal: "Unlimited" },
+  { feature: "Background Music", starter: false, classic: true, prestige: true, royal: true },
+  { feature: "RSVP Tracking", starter: false, classic: true, prestige: true, royal: true },
+  { feature: "Countdown Timer", starter: true, classic: true, prestige: true, royal: true },
+  { feature: "Google Maps", starter: true, classic: true, prestige: true, royal: true },
+  { feature: "Video Integration", starter: false, classic: false, prestige: true, royal: true },
+  { feature: "MoMo Collection", starter: false, classic: false, prestige: true, royal: true },
+  { feature: "Guest Messaging Wall", starter: false, classic: false, prestige: true, royal: true },
+  { feature: "Custom Domain", starter: false, classic: false, prestige: true, royal: true },
+  { feature: "Hosting Duration", starter: "30 days", classic: "90 days", prestige: "1 year", royal: "2 years" },
+  { feature: "Revision Rounds", starter: "1", classic: "2", prestige: "Unlimited", royal: "Unlimited" },
+];
+
 const Pricing = () => {
   const renderCellValue = (value: boolean | string) => {
     if (typeof value === "boolean") {
@@ -233,13 +186,14 @@ const Pricing = () => {
 
   return (
     <Layout>
-      <SEO 
+      <SEO
         title="Pricing"
-        description="Affordable digital invitation packages starting from GHS 500. Choose from Starter, Classic, or Premium packages for your wedding, funeral, or event in Ghana."
+        description="Affordable digital invitation packages starting from GHS 500. Choose from Starter, Classic, Prestige or Royal packages for your wedding, funeral, or event in Ghana."
         keywords="digital invitation prices Ghana, wedding invitation cost, event invitation packages Accra"
         canonical="/pricing"
-        jsonLd={[pricingSchema, pricingBreadcrumb, faqSchema]}
+        jsonLd={[pricingSchema, pricingBreadcrumb]}
       />
+
       {/* Hero */}
       <section className="pt-24 lg:pt-32 pb-16 bg-gradient-to-b from-[#6B46C1] via-[#553C9A] to-[#44337A]">
         <div className="container mx-auto px-4 lg:px-8">
@@ -256,8 +210,7 @@ const Pricing = () => {
               Simple, Transparent Pricing
             </h1>
             <p className="text-primary-foreground/80 text-lg lg:text-xl">
-              Choose the package that fits your celebration. No hidden fees,
-              just beautiful invitations.
+              Choose the package that fits your celebration. No hidden fees, just beautiful invitations.
             </p>
           </motion.div>
         </div>
@@ -290,46 +243,27 @@ const Pricing = () => {
                 )}
 
                 <div className="text-center mb-6 pt-2">
-                  <h3 className="text-xl font-bold text-foreground mb-1">
-                    {pkg.name}
-                  </h3>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    {pkg.description}
-                  </p>
-                  <div className="text-3xl font-bold text-foreground">
-                    {pkg.price}
-                  </div>
+                  <h3 className="text-xl font-bold text-foreground mb-1">{pkg.name}</h3>
+                  <p className="text-muted-foreground text-sm mb-4">{pkg.description}</p>
+                  <div className="text-3xl font-bold text-foreground">{pkg.price}</div>
                 </div>
 
                 <ul className="space-y-3 mb-6">
                   {pkg.features.map((feature) => (
-                    <li
-                      key={feature.name}
-                      className="flex items-center gap-2 text-sm"
-                    >
+                    <li key={feature.name} className="flex items-center gap-2 text-sm">
                       {feature.included ? (
                         <Check className="h-4 w-4 text-accent flex-shrink-0" />
                       ) : (
                         <X className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       )}
-                      <span
-                        className={
-                          feature.included
-                            ? "text-foreground"
-                            : "text-muted-foreground"
-                        }
-                      >
+                      <span className={feature.included ? "text-foreground" : "text-muted-foreground"}>
                         {feature.name}
                       </span>
                     </li>
                   ))}
                 </ul>
 
-                <Button
-                  asChild
-                  variant={pkg.popular ? "gold" : "outline"}
-                  className="w-full"
-                >
+                <Button asChild variant={pkg.popular ? "gold" : "outline"} className="w-full">
                   <Link to="/get-started">
                     {pkg.name === "Royal Vibe" ? "Contact Us" : "Get Started"}
                   </Link>
@@ -340,21 +274,18 @@ const Pricing = () => {
         </div>
       </section>
 
-      {/* Package Comparison Table */}
+      {/* Comparison Table */}
       <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Compare Packages
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Compare Packages</h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              See exactly what's included in each package to find your perfect fit.
+              See exactly what is included in each package to find your perfect fit.
             </p>
           </motion.div>
 
@@ -362,39 +293,21 @@ const Pricing = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
             className="overflow-x-auto"
           >
             <table className="w-full min-w-[700px] border-collapse">
               <thead>
                 <tr className="border-b border-border">
                   <th className="text-left py-4 px-4 text-foreground font-semibold">Feature</th>
-                  <th className="text-center py-4 px-4 text-foreground font-semibold">
-                    Starter
-                    <div className="text-sm font-normal text-muted-foreground">GHS 500</div>
-                  </th>
-                  <th className="text-center py-4 px-4 text-foreground font-semibold bg-secondary/10 rounded-t-lg">
-                    Classic
-                    <div className="text-sm font-normal text-secondary">GHS 1,200</div>
-                  </th>
-                  <th className="text-center py-4 px-4 text-foreground font-semibold">
-                    Prestige
-                    <div className="text-sm font-normal text-muted-foreground">GHS 2,500</div>
-                  </th>
-                  <th className="text-center py-4 px-4 text-foreground font-semibold">
-                    Royal
-                    <div className="text-sm font-normal text-muted-foreground">GHS 5,000+</div>
-                  </th>
+                  <th className="text-center py-4 px-4 text-foreground font-semibold">Starter<div className="text-sm font-normal text-muted-foreground">GHS 500</div></th>
+                  <th className="text-center py-4 px-4 text-foreground font-semibold bg-secondary/10 rounded-t-lg">Classic<div className="text-sm font-normal text-secondary">GHS 1,200</div></th>
+                  <th className="text-center py-4 px-4 text-foreground font-semibold">Prestige<div className="text-sm font-normal text-muted-foreground">GHS 2,500</div></th>
+                  <th className="text-center py-4 px-4 text-foreground font-semibold">Royal<div className="text-sm font-normal text-muted-foreground">GHS 5,000+</div></th>
                 </tr>
               </thead>
               <tbody>
                 {comparisonFeatures.map((row, index) => (
-                  <tr
-                    key={row.feature}
-                    className={`border-b border-border/50 ${
-                      index % 2 === 0 ? "bg-card/50" : ""
-                    }`}
-                  >
+                  <tr key={row.feature} className={`border-b border-border/50 ${index % 2 === 0 ? "bg-card/50" : ""}`}>
                     <td className="py-3 px-4 text-foreground text-sm">{row.feature}</td>
                     <td className="py-3 px-4 text-center">{renderCellValue(row.starter)}</td>
                     <td className="py-3 px-4 text-center bg-secondary/5">{renderCellValue(row.classic)}</td>
@@ -415,7 +328,6 @@ const Pricing = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
             <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-6">
@@ -453,45 +365,33 @@ const Pricing = () => {
       <section className="py-12 bg-muted/50">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-2xl mx-auto text-center">
-            <h3 className="text-lg font-bold text-foreground mb-2">
-              MoMo Collection Fees
-            </h3>
+            <h3 className="text-lg font-bold text-foreground mb-2">MoMo Collection Fees</h3>
             <p className="text-muted-foreground">
-              For packages with MoMo contribution collection, we charge a 2.5%
-              processing fee on funds collected. This covers payment processing,
-              dashboard access, and support.
+              For packages with MoMo contribution collection, we charge a 2.5% processing fee on funds collected. This covers payment processing, dashboard access, and support.
             </p>
           </div>
         </div>
       </section>
 
       {/* Not Sure CTA */}
-      <section className="py-16 bg-background">
+      <section className="py-16 bg-muted/50">
         <div className="container mx-auto px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
             className="max-w-2xl mx-auto text-center p-8 rounded-2xl bg-card border border-border"
           >
-            <h3 className="text-2xl font-bold text-foreground mb-4">
-              Not sure which to choose?
-            </h3>
+            <h3 className="text-2xl font-bold text-foreground mb-4">Not sure which to choose?</h3>
             <p className="text-muted-foreground mb-6">
-              Tell us about your event and we'll recommend the perfect package
-              for you. No pressure, just helpful advice.
+              Tell us about your event and we will recommend the perfect package for you. No pressure, just helpful advice.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild variant="default" size="lg">
                 <Link to="/get-started">Get a Recommendation</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <a
-                  href="https://wa.me/233245817973"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href="https://wa.me/233245817973" target="_blank" rel="noopener noreferrer">
                   <MessageCircle className="mr-2 h-4 w-4" />
                   WhatsApp Us
                 </a>
@@ -507,3 +407,4 @@ const Pricing = () => {
 };
 
 export default Pricing;
+

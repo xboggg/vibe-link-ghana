@@ -147,8 +147,8 @@ const About = () => {
             >
               <div className="rounded-2xl overflow-hidden shadow-xl">
                 <img 
-                  src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop"
-                  alt="Conference event in Ghana"
+                  src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=600&h=400&fit=crop"
+                  alt="Ghana celebration"
                   className="w-full h-auto object-cover"
                 />
               </div>
@@ -250,30 +250,30 @@ const About = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
             {[
               {
-                name: "Kwame Asante",
+                name: "Edmund Adjekum",
                 role: "Founder & CEO",
-                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
-                linkedin: "https://linkedin.com/in/kwameasante",
-                twitter: "https://twitter.com/kwameasante",
+                image: "/edmund-adjekum.jpg",
+                linkedin: "https://instagram.com/xbogg",
+                twitter: "https://twitter.com/xbogg",
               },
               {
                 name: "Ama Mensah",
                 role: "Creative Director",
-                image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=300&h=300&fit=crop&crop=face",
+                image: "/placeholder.svg",
                 linkedin: "https://linkedin.com/in/amimensah",
                 twitter: "https://twitter.com/amimensah",
               },
               {
                 name: "Kofi Darko",
                 role: "Lead Designer",
-                image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop&crop=face",
+                image: "/placeholder.svg",
                 linkedin: "https://linkedin.com/in/kofidarko",
                 twitter: "https://twitter.com/kofidarko",
               },
               {
                 name: "Efua Boateng",
                 role: "Customer Success",
-                image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop&crop=face",
+                image: "/placeholder.svg",
                 linkedin: "https://linkedin.com/in/efuaboateng",
                 twitter: "https://twitter.com/efuaboateng",
               },
